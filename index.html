@@ -18,31 +18,49 @@
         <!-- Formulário -->
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sua Atividade</label>
-                <select id="atividade" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Sua Atividade / Anexo</label>
+                <select id="atividade" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white text-sm">
+                    <!-- ANEXO I -->
+                    <optgroup label="Anexo I - Comércio">
+                        <option value="I_false">Lojas, E-commerce, Revenda de Mercadorias</option>
+                    </optgroup>
+                    
+                    <!-- ANEXO II -->
+                    <optgroup label="Anexo II - Indústria">
+                        <option value="II_false">Fábricas, Confecções, Produção Própria</option>
+                    </optgroup>
+
                     <!-- ANEXO III -->
-                    <option value="III_false">Design / Web Design / Ilustração</option>
-                    <option value="III_false">Gestor de Tráfego / Social Media / Marketing</option>
-                    <option value="III_false">Editor de Vídeo / Produtor Audiovisual</option>
-                    <option value="III_false">Tradutor / Redator / Copywriter / Revisores</option>
-                    <option value="III_false">Fotografia / Cinegrafista</option>
-                    <option value="III_false">Treinamentos / Cursos / Palestras</option>
-                    <option value="III_false">Instalação / Manutenção de Computadores</option>
-                    <option value="III_false">Recrutamento e Seleção / RH</option>
+                    <optgroup label="Anexo III - Serviços (Alíquota Menor)">
+                        <option value="III_false">Design / Web Design / Ilustração</option>
+                        <option value="III_false">Gestor de Tráfego / Social Media / Marketing</option>
+                        <option value="III_false">Editor de Vídeo / Produtor Audiovisual</option>
+                        <option value="III_false">Tradutor / Redator / Copywriter / Revisores</option>
+                        <option value="III_false">Fotografia / Cinegrafista</option>
+                        <option value="III_false">Treinamentos / Cursos / Palestras</option>
+                        <option value="III_false">Instalação / Manutenção de Computadores</option>
+                        <option value="III_false">Recrutamento e Seleção / RH</option>
+                    </optgroup>
+
+                    <!-- ANEXO IV -->
+                    <optgroup label="Anexo IV - Serviços (Com INSS Patronal)">
+                        <option value="IV_false">Advocacia / Serviços Jurídicos</option>
+                        <option value="IV_false">Construção Civil / Engenharia de Obras</option>
+                        <option value="IV_false">Serviços de Limpeza, Vigilância e Zeladoria</option>
+                    </optgroup>
                     
                     <!-- ANEXO V -->
-                    <option value="V_true">Programador / Desenvolvedor / TI / Suporte</option>
-                    <option value="V_true">Consultor Empresarial / Financeiro / TI</option>
-                    <option value="V_true">Arquiteto / Urbanista</option>
-                    <option value="V_true">Engenheiro (Civil, Mecânico, Elétrico, etc.)</option>
-                    <option value="V_true">Médico / Clínicas Médicas</option>
-                    <option value="V_true">Psicólogo / Psicanalista</option>
-                    <option value="V_true">Fisioterapeuta / Terapeuta Ocupacional</option>
-                    <option value="V_true">Nutricionista</option>
-                    <option value="V_true">Dentista / Odontologia</option>
-                    <option value="V_true">Contador / Serviços Contábeis</option>
-                    <option value="V_true">Veterinário / Zootecnista</option>
-                    <option value="V_true">Jornalista / Relações Públicas</option>
+                    <optgroup label="Anexo V - Serviços (Sujeitos ao Fator R)">
+                        <option value="V_true">Programador / Desenvolvedor / TI / Suporte</option>
+                        <option value="V_true">Consultor Empresarial / Financeiro / TI</option>
+                        <option value="V_true">Arquiteto / Urbanista</option>
+                        <option value="V_true">Engenheiro (Consultoria/Projetos)</option>
+                        <option value="V_true">Médico / Clínicas Médicas</option>
+                        <option value="V_true">Psicólogo / Psicanalista</option>
+                        <option value="V_true">Fisioterapeuta / Nutricionista / Dentista</option>
+                        <option value="V_true">Contador / Serviços Contábeis</option>
+                        <option value="V_true">Jornalista / Relações Públicas</option>
+                    </optgroup>
                 </select>
             </div>
 
@@ -60,9 +78,8 @@
         <div id="resultado" class="mt-6 hidden space-y-4">
             <hr class="border-gray-200">
             
-            <p class="text-sm font-semibold text-gray-700 text-center">Comparativo de Descontos Directos:</p>
+            <p class="text-sm font-semibold text-gray-700 text-center">Comparativo de Descontos Diretos:</p>
 
-            <!-- LADO A LADO / EMPILHADO -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <!-- CARD IMPOSTO PJ -->
                 <div class="p-4 bg-red-50 border border-red-100 rounded-xl text-center">
@@ -92,22 +109,18 @@
         </div>
     </div>
 
-    <!-- Lógica de Cálculo Otimizada -->
     <script>
         function calcularImpostoCLT(salarioBruto) {
-            // Regra aproximada do INSS Progressivo 2026 (Teto ~R$ 900)
             let inss = 0;
             if (salarioBruto <= 1518) inss = salarioBruto * 0.075;
             else if (salarioBruto <= 2793) inss = (1518 * 0.075) + ((salarioBruto - 1518) * 0.09);
             else if (salarioBruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((salarioBruto - 2793) * 0.12);
             else if (salarioBruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((salarioBruto - 4190) * 0.14);
-            else inss = 900; // Teto aproximado
+            else inss = 900; 
 
-            // Base de cálculo do IRPF é o salário bruto menos o INSS
             let baseIRPF = salarioBruto - inss;
             let irpf = 0;
 
-            // Tabela Progressiva IRPF simplificada
             if (baseIRPF <= 2259) irpf = 0;
             else if (baseIRPF <= 2826) irpf = (baseIRPF * 0.075) - 169.44;
             else if (baseIRPF <= 3751) irpf = (baseIRPF * 0.15) - 381.44;
@@ -115,7 +128,6 @@
             else irpf = (baseIRPF * 0.275) - 896.00;
 
             if (irpf < 0) irpf = 0;
-
             return inss + irpf;
         }
 
@@ -133,20 +145,24 @@
             const anexoBase = partes[0];
             const isSujeitoFatorR = (partes[1] === 'true');
 
-            // Cálculo PJ Inicial
-            let aliquotaPadrao = (anexoBase === 'V') ? 0.155 : 0.06; 
-            let impostoPadrao = faturamento * aliquotaPadrao;
+            // Definição das Alíquotas Iniciais de cada Anexo
+            let aliquotaPadrao = 0.06; // Default Anexo III
+            if (anexoBase === 'I') aliquotaPadrao = 0.04;      // Comércio: 4%
+            else if (anexoBase === 'II') aliquotaPadrao = 0.045; // Indústria: 4.5%
+            else if (anexoBase === 'IV') aliquotaPadrao = 0.045; // Anexo IV: 4.5%
+            else if (anexoBase === 'V') aliquotaPadrao = 0.155;  // Anexo V: 15.5%
 
-            // Cálculo CLT Direto
+            let impostoPadrao = faturamento * aliquotaPadrao;
             let impostoCLTTotal = calcularImpostoCLT(faturamento);
 
-            // Renderiza na tela
+            // Exibir na Tela
             document.getElementById('impostoPadrao').innerText = impostoPadrao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('impostoCLT').innerText = impostoCLTTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             document.getElementById('detalheAnexo').innerText = `Alíquota de ${(aliquotaPadrao * 100).toFixed(1)}% (Anexo ${anexoBase})`;
 
             const cardDica = document.getElementById('cardDica');
 
+            // O Fator R só se aplica para migrar do Anexo V para o III
             if (isSujeitoFatorR && anexoBase === 'V') {
                 const impostoReduzido = faturamento * 0.06;
                 document.getElementById('impostoReduzido').innerText = impostoReduzido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -155,7 +171,6 @@
                 cardDica.classList.add('hidden');
             }
 
-            // Exibe resultados
             document.getElementById('resultado').classList.remove('hidden');
         }
     </script>
