@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Simples Nacional para PJ</title>
-    <!-- Tailwind CSS v4 -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gray-50 font-sans min-h-screen flex items-center justify-center p-4">
@@ -51,7 +51,7 @@
                 <input type="number" id="faturamento" placeholder="Ex: 8000" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
 
-            <button type="button" onclick="calcular()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition duration-200 block text-center">
+            <button type="button" id="btnCalcular" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition duration-200 block text-center cursor-pointer">
                 Calcular Imposto
             </button>
         </div>
@@ -78,7 +78,7 @@
 
     <!-- Lógica do Cálculo -->
     <script>
-        function calcular() {
+        document.getElementById('btnCalcular').addEventListener('click', function() {
             const atividadeValue = document.getElementById('atividade').value;
             const faturamentoField = document.getElementById('faturamento');
             const faturamento = parseFloat(faturamentoField.value);
@@ -118,7 +118,7 @@
 
             // Exibe a div de resultados
             document.getElementById('resultado').classList.remove('hidden');
-        }
+        });
     </script>
 </body>
 </html>
