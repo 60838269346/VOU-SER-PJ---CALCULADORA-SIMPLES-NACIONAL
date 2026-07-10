@@ -55,7 +55,7 @@
             </select>
             
             <input type="number" id="faturamento" placeholder="Faturamento Mensal (R$)" class="w-full p-3 border rounded-lg">
-            <button onclick="calcularTudo()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold">Calcular Comparativo</button>
+            <button onclick="calcularTudo()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Calcular Comparativo</button>
         </div>
 
         <div id="resultado" class="mt-6 hidden space-y-4">
@@ -69,6 +69,13 @@
                     <p id="impostoCLT" class="text-xl font-black text-indigo-600">R$ 0,00</p>
                 </div>
             </div>
+
+            <!-- Novo quadro de economia anual -->
+            <div class="p-4 bg-green-50 border-2 border-green-200 rounded-xl text-center">
+                <p class="text-xs font-bold text-green-800 uppercase">Economia Anual Estimada</p>
+                <p id="economiaAnual" class="text-2xl font-black text-green-700">R$ 0,00</p>
+            </div>
+            
             <p id="detalheAliquota" class="text-[10px] text-gray-500 text-center"></p>
         </div>
     </div>
@@ -81,6 +88,7 @@
             else if (bruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((bruto - 2793) * 0.12);
             else if (bruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((bruto - 4190) * 0.14);
             else inss = 900;
+            
             let base = bruto - inss;
             let irpf = (base > 4664) ? (base * 0.275 - 896) : (base > 3751 ? (base * 0.225 - 662) : (base > 2826 ? (base * 0.15 - 381) : (base > 2259 ? (base * 0.075 - 169) : 0)));
             return inss + irpf;
@@ -112,8 +120,14 @@
             const aliquotaEfetiva = ((rbt12 * aln) - pd) / rbt12;
 
             const impostoPJ = fat * aliquotaEfetiva;
+            const impostoCLT = calcularImpostoCLT(fat);
+            
+            // Calculo da economia anual: (Diferença mensal) * 12
+            const economiaAnual = (impostoCLT - impostoPJ) * 12;
+
             document.getElementById('impostoPJ').innerText = impostoPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('impostoCLT').innerText = calcularImpostoCLT(fat).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('impostoCLT').innerText = impostoCLT.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('economiaAnual').innerText = economiaAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo ${anexo})`;
             document.getElementById('resultado').classList.remove('hidden');
         }
