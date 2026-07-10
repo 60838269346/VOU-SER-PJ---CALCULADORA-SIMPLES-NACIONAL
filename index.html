@@ -12,45 +12,20 @@
         
         <div class="space-y-4">
             <select id="atividade" class="w-full p-3 border rounded-lg text-sm">
-                <!-- ANEXO I -->
                 <optgroup label="Anexo I - Comércio">
-                    <option value="I">Lojas de roupas/calçados, E-commerce, Supermercados, Revenda de mercadorias em geral</option>
+                    <option value="I">Lojas, E-commerce, Revenda de mercadorias</option>
                 </optgroup>
-                
-                <!-- ANEXO II -->
                 <optgroup label="Anexo II - Indústria">
-                    <option value="II">Fábricas de móveis, Indústria de alimentos, Confecções, Metalúrgicas, Artesanato</option>
+                    <option value="II">Fábricas, Confecções, Produção própria</option>
                 </optgroup>
-
-                <!-- ANEXO III -->
                 <optgroup label="Anexo III - Serviços">
-                    <option value="III">Design Gráfico / Web Design / UX UI</option>
-                    <option value="III">Marketing Digital / Gestor de Tráfego / Social Media</option>
-                    <option value="III">Fotografia / Produção Audiovisual / Edição de vídeo</option>
-                    <option value="III">Redator / Copywriter / Tradutor / Revisores</option>
-                    <option value="III">Treinamentos / Cursos online / Palestras</option>
-                    <option value="III">Instalação, reparo e manutenção de computadores e máquinas</option>
-                    <option value="III">Agência de Viagens / Corretagem de Seguros</option>
+                    <option value="III">Design, Marketing, Fotografia, Edição, Redação, Cursos, Instalação</option>
                 </optgroup>
-
-                <!-- ANEXO IV -->
                 <optgroup label="Anexo IV - Serviços Especiais">
-                    <option value="IV">Advocacia / Escritórios de advocacia</option>
-                    <option value="IV">Construção civil / Empreiteiras / Engenharia de obras</option>
-                    <option value="IV">Serviços de limpeza, vigilância e zeladoria</option>
-                    <option value="IV">Empresas de montagem e instalação de estruturas</option>
+                    <option value="IV">Advocacia, Engenharia, Limpeza, Estruturas</option>
                 </optgroup>
-                
-                <!-- ANEXO V -->
                 <optgroup label="Anexo V - Serviços (Fator R)">
-                    <option value="V">Programador / Desenvolvedor de Software / TI / Suporte</option>
-                    <option value="V">Consultoria Empresarial / Financeira / Gestão</option>
-                    <option value="V">Arquiteto / Urbanista</option>
-                    <option value="V">Engenharia de projetos / Consultoria técnica</option>
-                    <option value="V">Médicos / Clínicas médicas / Odontologia / Psicólogos</option>
-                    <option value="V">Fisioterapeutas / Nutricionistas / Terapeutas</option>
-                    <option value="V">Contadores / Peritos / Auditores</option>
-                    <option value="V">Jornalistas / Relações Públicas</option>
+                    <option value="V">TI, Consultoria, Médicos, Psicólogos, Arquitetura, Contadores</option>
                 </optgroup>
             </select>
             
@@ -59,24 +34,37 @@
         </div>
 
         <div id="resultado" class="mt-6 hidden space-y-4">
+            <!-- Mensal -->
             <div class="grid grid-cols-2 gap-2 text-center">
-                <div class="p-4 bg-red-50 rounded-xl">
-                    <p class="text-xs font-bold text-red-800">PJ (Simples)</p>
-                    <p id="impostoPJ" class="text-xl font-black text-red-600">R$ 0,00</p>
+                <div class="p-3 bg-red-50 rounded-xl">
+                    <p class="text-[10px] uppercase font-bold text-red-800">PJ (Mês)</p>
+                    <p id="impostoPJ" class="text-lg font-black text-red-600">R$ 0,00</p>
                 </div>
-                <div class="p-4 bg-indigo-50 rounded-xl">
-                    <p class="text-xs font-bold text-indigo-800">CLT (Estimado)</p>
-                    <p id="impostoCLT" class="text-xl font-black text-indigo-600">R$ 0,00</p>
+                <div class="p-3 bg-indigo-50 rounded-xl">
+                    <p class="text-[10px] uppercase font-bold text-indigo-800">CLT (Mês)</p>
+                    <p id="impostoCLT" class="text-lg font-black text-indigo-600">R$ 0,00</p>
                 </div>
             </div>
 
-            <!-- Novo quadro de economia anual -->
-            <div class="p-4 bg-green-50 border-2 border-green-200 rounded-xl text-center">
-                <p class="text-xs font-bold text-green-800 uppercase">Economia Anual Estimada</p>
-                <p id="economiaAnual" class="text-2xl font-black text-green-700">R$ 0,00</p>
+            <!-- Acumulados Anuais -->
+            <div class="grid grid-cols-2 gap-2 text-center">
+                <div class="p-3 bg-gray-100 rounded-xl">
+                    <p class="text-[10px] uppercase font-bold text-gray-600">Total PJ (Ano)</p>
+                    <p id="totalPJAnual" class="text-sm font-black text-gray-800">R$ 0,00</p>
+                </div>
+                <div class="p-3 bg-gray-100 rounded-xl">
+                    <p class="text-[10px] uppercase font-bold text-gray-600">Total CLT (Ano)</p>
+                    <p id="totalCLTAnual" class="text-sm font-black text-gray-800">R$ 0,00</p>
+                </div>
+            </div>
+
+            <!-- Economia -->
+            <div class="p-4 bg-green-600 rounded-2xl text-center text-white shadow-lg">
+                <p class="text-xs font-bold uppercase opacity-80">Economia Anual Estimada</p>
+                <p id="economiaAnual" class="text-3xl font-black mt-1">R$ 0,00</p>
             </div>
             
-            <p id="detalheAliquota" class="text-[10px] text-gray-500 text-center"></p>
+            <p id="detalheAliquota" class="text-[10px] text-gray-400 text-center"></p>
         </div>
     </div>
 
@@ -88,7 +76,6 @@
             else if (bruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((bruto - 2793) * 0.12);
             else if (bruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((bruto - 4190) * 0.14);
             else inss = 900;
-            
             let base = bruto - inss;
             let irpf = (base > 4664) ? (base * 0.275 - 896) : (base > 3751 ? (base * 0.225 - 662) : (base > 2826 ? (base * 0.15 - 381) : (base > 2259 ? (base * 0.075 - 169) : 0)));
             return inss + irpf;
@@ -119,14 +106,18 @@
             const pd = tabelas[anexo].pd[faixa];
             const aliquotaEfetiva = ((rbt12 * aln) - pd) / rbt12;
 
-            const impostoPJ = fat * aliquotaEfetiva;
-            const impostoCLT = calcularImpostoCLT(fat);
+            const impostoPJMensal = fat * aliquotaEfetiva;
+            const impostoCLTMensal = calcularImpostoCLT(fat);
             
-            // Calculo da economia anual: (Diferença mensal) * 12
-            const economiaAnual = (impostoCLT - impostoPJ) * 12;
+            // Cálculos Anuais
+            const totalPJAnual = impostoPJMensal * 12;
+            const totalCLTAnual = impostoCLTMensal * 12;
+            const economiaAnual = totalCLTAnual - totalPJAnual;
 
-            document.getElementById('impostoPJ').innerText = impostoPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('impostoCLT').innerText = impostoCLT.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('impostoPJ').innerText = impostoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('impostoCLT').innerText = impostoCLTMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('totalPJAnual').innerText = totalPJAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('totalCLTAnual').innerText = totalCLTAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('economiaAnual').innerText = economiaAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo ${anexo})`;
             document.getElementById('resultado').classList.remove('hidden');
