@@ -47,12 +47,12 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Faturamento Mensal Pretendido (R$)</label>
-                <input type="number" id="faturamento" placeholder="Ex: 8000" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Valor Bruto para Comparação (R$)</label>
+                <input type="number" id="faturamento" placeholder="Ex: 10000" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
 
             <button type="button" onclick="dispararCalculo()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition duration-200 block text-center cursor-pointer">
-                Calcular Cenários
+                Comparar Impostos
             </button>
         </div>
 
@@ -60,34 +60,33 @@
         <div id="resultado" class="mt-6 hidden space-y-4">
             <hr class="border-gray-200">
             
-            <!-- CARD IMPOSTO PJ -->
-            <div class="p-4 bg-gray-100 rounded-lg">
-                <p class="text-sm text-gray-600">Imposto Estimado PJ (Sem Planejamento):</p>
-                <p class="text-2xl font-bold text-red-600" id="impostoPadrao">R$ 0,00</p>
-                <p class="text-xs text-gray-500" id="detalheAnexo">Alíquota base do Anexo</p>
+            <p class="text-sm font-semibold text-gray-700 text-center">Comparativo de Descontos Directos:</p>
+
+            <!-- LADO A LADO / EMPILHADO -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- CARD IMPOSTO PJ -->
+                <div class="p-4 bg-red-50 border border-red-100 rounded-xl text-center">
+                    <p class="text-xs font-bold text-red-800 uppercase tracking-wider">Como PJ</p>
+                    <p class="text-2xl font-black text-red-600 mt-1" id="impostoPadrao">R$ 0,00</p>
+                    <p class="text-[10px] text-gray-500 mt-1" id="detalheAnexo">Imposto do Simples</p>
+                </div>
+
+                <!-- CARD IMPOSTO CLT -->
+                <div class="p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-center">
+                    <p class="text-xs font-bold text-indigo-800 uppercase tracking-wider">Como CLT</p>
+                    <p class="text-2xl font-black text-indigo-600 mt-1" id="impostoCLT">R$ 0,00</p>
+                    <p class="text-[10px] text-gray-500 mt-1">*Soma de INSS + IRPF</p>
+                </div>
             </div>
 
             <!-- Card do Fator R (Economia Inteligente) -->
             <div id="cardDica" class="p-4 bg-green-50 border border-green-200 rounded-lg hidden">
-                <span class="text-lg">💡</span> <strong class="text-green-800 text-sm">Dica de Economia:</strong>
+                <span class="text-lg">💡</span> <strong class="text-green-800 text-sm">Com Planejamento (Fator R):</strong>
                 <p class="text-xs text-green-700 mt-1">
-                    Se você definir um Pró-labore de <span id="valorProLabore" class="font-bold">R$ 0,00</span>, seu imposto cai para <span class="font-bold text-green-600" id="impostoReduzido">R$ 0,00</span> (Anexo III - 6%).
+                    Seu imposto de PJ cai para <span class="font-bold text-green-600" id="impostoReduzido">R$ 0,00</span> (6%).
                 </p>
-                <p class="text-xs font-semibold text-green-800 mt-2" id="economiaTotal">Você economiza R$ 0,00 por mês!</p>
-            </div>
-
-            <!-- NOVO CARD: COMPARATIVO CLT REAL -->
-            <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
-                <div class="flex items-center gap-2">
-                    <span class="text-lg">👔</span>
-                    <strong class="text-blue-900 text-sm">Se você ganhasse isso como CLT:</strong>
-                </div>
-                <p class="text-xs text-gray-600">
-                    Para sobrar o mesmo valor líquido que sobra no seu PJ estruturado, uma empresa teria que te pagar um salário bruto na carteira de:
-                </p>
-                <p class="text-xl font-bold text-blue-700" id="cltEquivalente">R$ 0,00</p>
-                <p class="text-[10px] text-gray-500 leading-tight">
-                    *Cálculo estima os descontos progressivos do INSS e IRPF de Pessoa Física sobre o mesmo valor de ganho líquido.
+                <p class="text-[11px] text-green-800 mt-1">
+                    Comparado à CLT, você deixa de dar uma fortuna para o governo todo mês!
                 </p>
             </div>
         </div>
@@ -95,12 +94,37 @@
 
     <!-- Lógica de Cálculo Otimizada -->
     <script>
+        function calcularImpostoCLT(salarioBruto) {
+            // Regra aproximada do INSS Progressivo 2026 (Teto ~R$ 900)
+            let inss = 0;
+            if (salarioBruto <= 1518) inss = salarioBruto * 0.075;
+            else if (salarioBruto <= 2793) inss = (1518 * 0.075) + ((salarioBruto - 1518) * 0.09);
+            else if (salarioBruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((salarioBruto - 2793) * 0.12);
+            else if (salarioBruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((salarioBruto - 4190) * 0.14);
+            else inss = 900; // Teto aproximado
+
+            // Base de cálculo do IRPF é o salário bruto menos o INSS
+            let baseIRPF = salarioBruto - inss;
+            let irpf = 0;
+
+            // Tabela Progressiva IRPF simplificada
+            if (baseIRPF <= 2259) irpf = 0;
+            else if (baseIRPF <= 2826) irpf = (baseIRPF * 0.075) - 169.44;
+            else if (baseIRPF <= 3751) irpf = (baseIRPF * 0.15) - 381.44;
+            else if (baseIRPF <= 4664) irpf = (baseIRPF * 0.225) - 662.77;
+            else irpf = (baseIRPF * 0.275) - 896.00;
+
+            if (irpf < 0) irpf = 0;
+
+            return inss + irpf;
+        }
+
         function dispararCalculo() {
             const faturamentoTexto = document.getElementById('faturamento').value;
             const faturamento = parseFloat(faturamentoTexto);
 
             if (!faturamentoTexto || isNaN(faturamento) || faturamento <= 0) {
-                alert("Opa! Por favor, digite um valor de faturamento maior que 0.");
+                alert("Por favor, digite um valor válido.");
                 return;
             }
 
@@ -109,46 +133,31 @@
             const anexoBase = partes[0];
             const isSujeitoFatorR = (partes[1] === 'true');
 
+            // Cálculo PJ Inicial
             let aliquotaPadrao = (anexoBase === 'V') ? 0.155 : 0.06; 
             let impostoPadrao = faturamento * aliquotaPadrao;
 
-            // Mostra os valores PJ na tela
+            // Cálculo CLT Direto
+            let impostoCLTTotal = calcularImpostoCLT(faturamento);
+
+            // Renderiza na tela
             document.getElementById('impostoPadrao').innerText = impostoPadrao.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('detalheAnexo').innerText = `Baseado na alíquota inicial do Anexo ${anexoBase} (${(aliquotaPadrao * 100).toFixed(1)}%).`;
+            document.getElementById('impostoCLT').innerText = impostoCLTTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('detalheAnexo').innerText = `Alíquota de ${(aliquotaPadrao * 100).toFixed(1)}% (Anexo ${anexoBase})`;
 
             const cardDica = document.getElementById('cardDica');
-            let liquidoPJ = faturamento - impostoPadrao;
 
             if (isSujeitoFatorR && anexoBase === 'V') {
-                const proLaboreNecessario = faturamento * 0.28;
                 const impostoReduzido = faturamento * 0.06;
-                const economia = impostoPadrao - impostoReduzido;
-
-                document.getElementById('valorProLabore').innerText = proLaboreNecessario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 document.getElementById('impostoReduzido').innerText = impostoReduzido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                document.getElementById('economiaTotal').innerText = `Você economiza ${economia.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} por mês de forma legal!`;
-                
                 cardDica.classList.remove('hidden');
-                liquidoPJ = faturamento - impostoReduzido; // Considera o cenário otimizado para o ganho real
             } else {
                 cardDica.classList.add('hidden');
             }
 
-            // --- Lógica de Equivalência CLT Inversa ---
-            // Simula quanto precisaria ser o Bruto CLT para bater o Líquido do PJ
-            // Adiciona uma estimativa de carga de IRPF (27.5%) e INSS do teto que incidem na PF física
-            let cltEstimadoBruto = liquidoPJ / 0.73; 
-            if (faturamento > 6000) {
-                // Ajuste fino para aproximar do teto do INSS e deduções do IRPF da tabela progressiva
-                cltEstimadoBruto = (liquidoPJ - 690) / 0.725;
-            }
-
-            document.getElementById('cltEquivalente').innerText = cltEstimadoBruto.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-            // Exibe o painel de resultados
+            // Exibe resultados
             document.getElementById('resultado').classList.remove('hidden');
         }
     </script>
 </body>
 </html>
- 
