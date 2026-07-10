@@ -1,22 +1,122 @@
-function calcularAliquotaEfetiva(anexo, faturamentoAnual) {
-            // Tabelas de faixas (Receita bruta acumulada em 12 meses)
-            // Retorna o valor fixo a deduzir e a alíquota nominal
-            let faixas = [];
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Simples Nacional Completa</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-50 p-4">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl">
+        <h2 class="text-2xl font-bold text-center mb-6">Simulador PJ Profissional</h2>
+        
+        <div class="space-y-4">
+            <select id="atividade" class="w-full p-3 border rounded-lg text-sm">
+                <!-- ANEXO I -->
+                <optgroup label="Anexo I - Comércio">
+                    <option value="I">Lojas de roupas/calçados, E-commerce, Supermercados, Revenda de mercadorias em geral</option>
+                </optgroup>
+                
+                <!-- ANEXO II -->
+                <optgroup label="Anexo II - Indústria">
+                    <option value="II">Fábricas de móveis, Indústria de alimentos, Confecções, Metalúrgicas, Artesanato</option>
+                </optgroup>
+
+                <!-- ANEXO III -->
+                <optgroup label="Anexo III - Serviços">
+                    <option value="III">Design Gráfico / Web Design / UX UI</option>
+                    <option value="III">Marketing Digital / Gestor de Tráfego / Social Media</option>
+                    <option value="III">Fotografia / Produção Audiovisual / Edição de vídeo</option>
+                    <option value="III">Redator / Copywriter / Tradutor / Revisores</option>
+                    <option value="III">Treinamentos / Cursos online / Palestras</option>
+                    <option value="III">Instalação, reparo e manutenção de computadores e máquinas</option>
+                    <option value="III">Agência de Viagens / Corretagem de Seguros</option>
+                </optgroup>
+
+                <!-- ANEXO IV -->
+                <optgroup label="Anexo IV - Serviços Especiais">
+                    <option value="IV">Advocacia / Escritórios de advocacia</option>
+                    <option value="IV">Construção civil / Empreiteiras / Engenharia de obras</option>
+                    <option value="IV">Serviços de limpeza, vigilância e zeladoria</option>
+                    <option value="IV">Empresas de montagem e instalação de estruturas</option>
+                </optgroup>
+                
+                <!-- ANEXO V -->
+                <optgroup label="Anexo V - Serviços (Fator R)">
+                    <option value="V">Programador / Desenvolvedor de Software / TI / Suporte</option>
+                    <option value="V">Consultoria Empresarial / Financeira / Gestão</option>
+                    <option value="V">Arquiteto / Urbanista</option>
+                    <option value="V">Engenharia de projetos / Consultoria técnica</option>
+                    <option value="V">Médicos / Clínicas médicas / Odontologia / Psicólogos</option>
+                    <option value="V">Fisioterapeutas / Nutricionistas / Terapeutas</option>
+                    <option value="V">Contadores / Peritos / Auditores</option>
+                    <option value="V">Jornalistas / Relações Públicas</option>
+                </optgroup>
+            </select>
             
-            if (anexo === 'I') faixas = [180000, 360000, 720000, 1800000, 3600000, 4800000];
-            else if (anexo === 'II') faixas = [180000, 360000, 720000, 1800000, 3600000, 4800000];
-            else if (anexo === 'III') faixas = [180000, 360000, 720000, 1800000, 3600000, 4800000];
-            else if (anexo === 'IV') faixas = [180000, 360000, 720000, 1800000, 3600000, 4800000];
-            else if (anexo === 'V') faixas = [180000, 360000, 720000, 1800000, 3600000, 4800000];
+            <input type="number" id="faturamento" placeholder="Faturamento Mensal (R$)" class="w-full p-3 border rounded-lg">
+            <button onclick="calcularTudo()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold">Calcular Comparativo</button>
+        </div>
 
-            const aln = [0.04, 0.045, 0.06, 0.112, 0.135, 0.16, 0.33]; // Exemplos simplificados de alíquotas nominais
-            const pd = [0, 5400, 13500, 36000, 126000, 279000]; // Parcelas a deduzir
+        <div id="resultado" class="mt-6 hidden space-y-4">
+            <div class="grid grid-cols-2 gap-2 text-center">
+                <div class="p-4 bg-red-50 rounded-xl">
+                    <p class="text-xs font-bold text-red-800">PJ (Simples)</p>
+                    <p id="impostoPJ" class="text-xl font-black text-red-600">R$ 0,00</p>
+                </div>
+                <div class="p-4 bg-indigo-50 rounded-xl">
+                    <p class="text-xs font-bold text-indigo-800">CLT (Estimado)</p>
+                    <p id="impostoCLT" class="text-xl font-black text-indigo-600">R$ 0,00</p>
+                </div>
+            </div>
+            <p id="detalheAliquota" class="text-[10px] text-gray-500 text-center"></p>
+        </div>
+    </div>
 
-            // Lógica simplificada para o cálculo da alíquota efetiva: (RBT12 * Alíquota Nominal - Parcela a deduzir) / RBT12
-            // Para simplificar a demonstração, vamos usar a alíquota inicial que você validou.
-            return (anexo === 'III') ? 0.0824 : 0.06; // Aqui você pode expandir a lógica para todas as faixas
+    <script>
+        function calcularImpostoCLT(bruto) {
+            let inss = 0;
+            if (bruto <= 1518) inss = bruto * 0.075;
+            else if (bruto <= 2793) inss = (1518 * 0.075) + ((bruto - 1518) * 0.09);
+            else if (bruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((bruto - 2793) * 0.12);
+            else if (bruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((bruto - 4190) * 0.14);
+            else inss = 900;
+            let base = bruto - inss;
+            let irpf = (base > 4664) ? (base * 0.275 - 896) : (base > 3751 ? (base * 0.225 - 662) : (base > 2826 ? (base * 0.15 - 381) : (base > 2259 ? (base * 0.075 - 169) : 0)));
+            return inss + irpf;
         }
 
-        function dispararCalculo() {
-            const faturamento = parseFloat(document.getElementById('faturamento').value);
-            // ... resto do código (mantém a estrutura anterior)
+        function calcularTudo() {
+            const fat = parseFloat(document.getElementById('faturamento').value);
+            if (!fat) return;
+            const rbt12 = fat * 12;
+            const anexo = document.getElementById('atividade').value;
+
+            const tabelas = {
+                'I':   { al: [0.04, 0.073, 0.095, 0.107, 0.143, 0.19], pd: [0, 5940, 13860, 22500, 87300, 378000] },
+                'II':  { al: [0.045, 0.078, 0.1, 0.112, 0.15, 0.3], pd: [0, 5940, 13860, 22500, 93600, 720000] },
+                'III': { al: [0.06, 0.112, 0.135, 0.16, 0.21, 0.33], pd: [0, 9360, 17640, 35640, 125640, 279000] },
+                'IV':  { al: [0.045, 0.09, 0.102, 0.14, 0.22, 0.33], pd: [0, 8100, 12600, 40500, 185400, 279000] },
+                'V':   { al: [0.155, 0.18, 0.195, 0.205, 0.23, 0.33], pd: [0, 4500, 9900, 17100, 62100, 279000] }
+            };
+
+            let faixa = 0;
+            if (rbt12 > 180000) faixa = 1;
+            if (rbt12 > 360000) faixa = 2;
+            if (rbt12 > 720000) faixa = 3;
+            if (rbt12 > 1800000) faixa = 4;
+            if (rbt12 > 3600000) faixa = 5;
+
+            const aln = tabelas[anexo].al[faixa];
+            const pd = tabelas[anexo].pd[faixa];
+            const aliquotaEfetiva = ((rbt12 * aln) - pd) / rbt12;
+
+            const impostoPJ = fat * aliquotaEfetiva;
+            document.getElementById('impostoPJ').innerText = impostoPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('impostoCLT').innerText = calcularImpostoCLT(fat).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo ${anexo})`;
+            document.getElementById('resultado').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
