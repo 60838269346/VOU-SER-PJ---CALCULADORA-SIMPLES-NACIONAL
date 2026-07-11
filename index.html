@@ -141,51 +141,12 @@
         </div>
     </div>
 </div>
-function calcularTudo() {
-    const fat = parseFloat(document.getElementById('faturamento').value);
-    if (!fat) return;
-
-    // Lógica PJ
-    const rbt12 = fat * 12;
-    const anexo = document.getElementById('atividade').value;
-    const tabelas = {
-        'I': { al: [0.04, 0.073, 0.095, 0.107, 0.143, 0.19], pd: [0, 5940, 13860, 22500, 87300, 378000] },
-        'II': { al: [0.045, 0.078, 0.1, 0.112, 0.15, 0.3], pd: [0, 5940, 13860, 22500, 93600, 720000] },
-        'III': { al: [0.06, 0.112, 0.135, 0.16, 0.21, 0.33], pd: [0, 9360, 17640, 35640, 125640, 279000] },
-        'IV': { al: [0.045, 0.09, 0.102, 0.14, 0.22, 0.33], pd: [0, 8100, 12600, 40500, 185400, 279000] },
-        'V': { al: [0.155, 0.18, 0.195, 0.205, 0.23, 0.33], pd: [0, 4500, 9900, 17100, 62100, 279000] }
-    };
-
-    let faixa = 0;
-    if (rbt12 > 180000) faixa = 1; if (rbt12 > 360000) faixa = 2; if (rbt12 > 720000) faixa = 3; if (rbt12 > 1800000) faixa = 4; if (rbt12 > 3600000) faixa = 5;
-    
-    const aln = tabelas[anexo].al[faixa];
-    const pd = tabelas[anexo].pd[faixa];
-    const impostoPJMensal = (fat * aln) - (pd / 12);
-    
-    // Lógica CLT Detalhada
-    let inss = 0;
-    if (fat <= 1518) inss = fat * 0.075;
-    else if (fat <= 2793) inss = (1518 * 0.075) + ((fat - 1518) * 0.09);
-    else if (fat <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((fat - 2793) * 0.12);
-    else if (fat <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((fat - 4190) * 0.14);
-    else inss = 900;
-
-    let baseIR = fat - inss;
-    let irpf = (baseIR > 4664) ? (baseIR * 0.275 - 896) : (baseIR > 3751 ? (baseIR * 0.225 - 662) : (baseIR > 2826 ? (baseIR * 0.15 - 381) : (baseIR > 2259 ? (baseIR * 0.075 - 169) : 0)));
-    
-    const totalCLT = inss + irpf;
-
-    // Exibição dos valores (INSS e IRRF aparecem no console para você validar)
-    console.log(`DETALHE CLT: INSS R$ ${inss.toFixed(2)} | IRRF R$ ${irpf.toFixed(2)}`);
-    
-    document.getElementById('impostoPJ').innerText = impostoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-    document.getElementById('impostoCLT').innerText = totalCLT.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-    
-    // Cálculos Anuais e Economia mantidos iguais...
-    document.getElementById('totalPJAnual').innerText = (impostoPJMensal * 12).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-    document.getElementById('totalCLTAnual').innerText = (totalCLT * 12).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-    document.getElementById('economiaAnual').innerText = ((totalCLT * 12) - (impostoPJMensal * 12)).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-    
-    document.getElementById('resultado').classList.remove('hidden');
-}
+<div class="p-3 bg-indigo-50 rounded-xl">
+    <p class="text-[10px] uppercase font-bold text-indigo-800">CLT (Mês)</p>
+    <p id="impostoCLT" class="text-lg font-black text-indigo-600">R$ 0,00</p>
+    <!-- Novas linhas abaixo -->
+    <div class="mt-2 pt-2 border-t border-indigo-200 text-[9px] text-indigo-700">
+        <p>INSS: <span id="valINSS">R$ 0,00</span></p>
+        <p>IRRF: <span id="valIRRF">R$ 0,00</span></p>
+    </div>
+</div>
