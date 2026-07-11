@@ -126,50 +126,131 @@
 </body>
 </html>
 <!-- Novo Quadro de Consulta -->
-<div class="mt-8 p-6 bg-gray-100 rounded-2xl">
-  <h3 class="font-bold text-gray-700 mb-4 text-center">Guia Rápido de Atividades</h3>
-  <div class="overflow-y-auto max-h-64 border rounded-lg bg-white">
-    <table class="w-full text-[10px] text-left">
-      <thead class="bg-gray-200 sticky top-0">
-        <tr>
-          <th class="p-2">Atividade</th>
-          <th class="p-2">SN</th>
-          <th class="p-2">Anexo</th>
-          <th class="p-2">Fator R</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="border-b">
-          <td class="p-2">Comércio</td>
-          <td class="p-2 text-green-600">Sim</td>
-          <td class="p-2">I</td>
-          <td class="p-2">Não</td>
-        </tr>
-        <tr class="border-b">
-          <td class="p-2">Indústria</td>
-          <td class="p-2 text-green-600">Sim</td>
-          <td class="p-2">II</td>
-          <td class="p-2">Não</td>
-        </tr>
-        <tr class="border-b">
-          <td class="p-2">Serviços Gerais</td>
-          <td class="p-2 text-green-600">Sim</td>
-          <td class="p-2">III</td>
-          <td class="p-2">Não</td>
-        </tr>
-        <tr class="border-b">
-          <td class="p-2">Serviços Especializados</td>
-          <td class="p-2 text-green-600">Sim</td>
-          <td class="p-2">IV</td>
-          <td class="p-2">Não</td>
-        </tr>
-        <tr>
-          <td class="p-2">TI / Consultoria</td>
-          <td class="p-2 text-green-600">Sim</td>
-          <td class="p-2">V</td>
-          <td class="p-2">Sim</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+<<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Simples Nacional Completa</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-50 p-4">
+    <!-- Container principal aumentado para 4xl -->
+    <div class="max-w-5xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
+        <h2 class="text-3xl font-bold text-center mb-8">Simulador PJ Profissional</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Coluna 1: O seu simulador -->
+            <div class="space-y-4">
+                <select id="atividade" class="w-full p-3 border rounded-lg text-sm">
+                    <optgroup label="Anexo I - Comércio">
+                        <option value="I">Lojas, E-commerce, Revenda</option>
+                    </optgroup>
+                    <optgroup label="Anexo II - Indústria">
+                        <option value="II">Fábricas, Confecções</option>
+                    </optgroup>
+                    <optgroup label="Anexo III - Serviços">
+                        <option value="III">Marketing, Cursos, Edição</option>
+                    </optgroup>
+                    <optgroup label="Anexo IV - Serviços Especiais">
+                        <option value="IV">Advocacia, Engenharia</option>
+                    </optgroup>
+                    <optgroup label="Anexo V - Serviços (Fator R)">
+                        <option value="V">TI, Consultoria, Médicos</option>
+                    </optgroup>
+                </select>
+                <input type="number" id="faturamento" placeholder="Faturamento Mensal (R$)" class="w-full p-3 border rounded-lg">
+                <button onclick="calcularTudo()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Calcular Comparativo</button>
+                
+                <div id="resultado" class="mt-6 hidden space-y-4">
+                    <div class="grid grid-cols-2 gap-2 text-center">
+                        <div class="p-3 bg-red-50 rounded-xl">
+                            <p class="text-[10px] uppercase font-bold text-red-800">PJ (Mês)</p>
+                            <p id="impostoPJ" class="text-lg font-black text-red-600">R$ 0,00</p>
+                        </div>
+                        <div class="p-3 bg-indigo-50 rounded-xl">
+                            <p class="text-[10px] uppercase font-bold text-indigo-800">CLT (Mês)</p>
+                            <p id="impostoCLT" class="text-lg font-black text-indigo-600">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-green-600 rounded-2xl text-center text-white shadow-lg">
+                        <p class="text-xs font-bold uppercase opacity-80">Economia Anual Estimada</p>
+                        <p id="economiaAnual" class="text-3xl font-black mt-1">R$ 0,00</p>
+                    </div>
+                    <p id="detalheAliquota" class="text-[10px] text-gray-400 text-center"></p>
+                </div>
+            </div>
+
+            <!-- Coluna 2: Novo Quadro de Consulta -->
+            <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                <h3 class="font-bold text-gray-700 mb-4 text-center">Tabela de Consultoria Rápida</h3>
+                <div class="overflow-y-auto max-h-[350px] border rounded-lg bg-white">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-100 sticky top-0 text-[11px] uppercase">
+                            <tr>
+                                <th class="p-3">Atividade</th>
+                                <th class="p-3">Anexo</th>
+                                <th class="p-3">Fator R</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs divide-y">
+                            <tr><td class="p-3">Comércio</td><td class="p-3 font-bold">Anexo I</td><td class="p-3 text-gray-400">Não</td></tr>
+                            <tr><td class="p-3">Indústria</td><td class="p-3 font-bold">Anexo II</td><td class="p-3 text-gray-400">Não</td></tr>
+                            <tr><td class="p-3">Serviços Gerais</td><td class="p-3 font-bold">Anexo III</td><td class="p-3 text-gray-400">Não</td></tr>
+                            <tr><td class="p-3">Engenharia/Advocacia</td><td class="p-3 font-bold">Anexo IV</td><td class="p-3 text-gray-400">Não</td></tr>
+                            <tr><td class="p-3">TI / Consultoria</td><td class="p-3 font-bold text-blue-600">Anexo V</td><td class="p-3 font-bold text-green-600">Sim</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-4 text-center italic">*O Fator R depende da folha de pagamento ser >= 28% do faturamento.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // (Mantive sua lógica original aqui, ela está perfeita!)
+        function calcularImpostoCLT(bruto) {
+            let inss = 0;
+            if (bruto <= 1518) inss = bruto * 0.075;
+            else if (bruto <= 2793) inss = (1518 * 0.075) + ((bruto - 1518) * 0.09);
+            else if (bruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((bruto - 2793) * 0.12);
+            else if (bruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((bruto - 4190) * 0.14);
+            else inss = 900;
+            let base = bruto - inss;
+            let irpf = (base > 4664) ? (base * 0.275 - 896) : (base > 3751 ? (base * 0.225 - 662) : (base > 2826 ? (base * 0.15 - 381) : (base > 2259 ? (base * 0.075 - 169) : 0)));
+            return inss + irpf;
+        }
+
+        function calcularTudo() {
+            const fat = parseFloat(document.getElementById('faturamento').value);
+            if (!fat) return;
+            const rbt12 = fat * 12;
+            const anexo = document.getElementById('atividade').value;
+            const tabelas = {
+                'I': { al: [0.04, 0.073, 0.095, 0.107, 0.143, 0.19], pd: [0, 5940, 13860, 22500, 87300, 378000] },
+                'II': { al: [0.045, 0.078, 0.1, 0.112, 0.15, 0.3], pd: [0, 5940, 13860, 22500, 93600, 720000] },
+                'III': { al: [0.06, 0.112, 0.135, 0.16, 0.21, 0.33], pd: [0, 9360, 17640, 35640, 125640, 279000] },
+                'IV': { al: [0.045, 0.09, 0.102, 0.14, 0.22, 0.33], pd: [0, 8100, 12600, 40500, 185400, 279000] },
+                'V': { al: [0.155, 0.18, 0.195, 0.205, 0.23, 0.33], pd: [0, 4500, 9900, 17100, 62100, 279000] }
+            };
+            let faixa = 0;
+            if (rbt12 > 180000) faixa = 1;
+            if (rbt12 > 360000) faixa = 2;
+            if (rbt12 > 720000) faixa = 3;
+            if (rbt12 > 1800000) faixa = 4;
+            if (rbt12 > 3600000) faixa = 5;
+            const aln = tabelas[anexo].al[faixa];
+            const pd = tabelas[anexo].pd[faixa];
+            const aliquotaEfetiva = ((rbt12 * aln) - pd) / rbt12;
+            const impostoPJMensal = fat * aliquotaEfetiva;
+            const impostoCLTMensal = calcularImpostoCLT(fat);
+            
+            document.getElementById('impostoPJ').innerText = impostoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('impostoCLT').innerText = impostoCLTMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('economiaAnual').innerText = ((impostoCLTMensal - impostoPJMensal) * 12).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo ${anexo})`;
+            document.getElementById('resultado').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
