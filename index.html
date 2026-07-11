@@ -125,37 +125,66 @@
     </script>
 </body>
 </html>
-<!-- Bloco de Racional Expandido (Valor e %) -->
+<script>
+    function calcularImpostoCLT(bruto) {
+        let inss = 0;
+        if (bruto <= 1518) inss = bruto * 0.075;
+        else if (bruto <= 2793) inss = (1518 * 0.075) + ((bruto - 1518) * 0.09);
+        else if (bruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((bruto - 2793) * 0.12);
+        else if (bruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((bruto - 4190) * 0.14);
+        else inss = 900; 
+
+        let base = bruto - inss;
+        let irpf = (base > 4664) ? (base * 0.275 - 896) : (base > 3751 ? (base * 0.225 - 662) : (base > 2826 ? (base * 0.15 - 381) : (base > 2259 ? (base * 0.075 - 169) : 0)));
+        
+        return { inss: inss, irpf: irpf, total: inss + irpf };
+    }
+
+    function calcularTudo() {
+        const fat = parseFloat(document.getElementById('faturamento').value);
+        if (!fat) return;
+        
+        const rbt12 = fat * 12;
+        const anexo = document.getElementById('atividade').value;
+        const tabelas = {
+            'I': { al: [0.04, 0.073, 0.095, 0.107, 0.143, 0.19], pd: [0, 5940, 13860, 22500, 87300, 378000] },
+            'II': { al: [0.045, 0.078, 0.1, 0.112, 0.15, 0.3], pd: [0, 5940, 13860, 22500, 93600, 720000] },
+            'III': { al: [0.06, 0.112, 0.135, 0.16, 0.21, 0.33], pd: [0, 9360, 17640, 35640, 125640, 279000] },
+            'IV': { al: [0.045, 0.09, 0.102, 0.14, 0.22, 0.33], pd: [0, 8100, 12600, 40500, 185400, 279000] },
+            'V': { al: [0.155, 0.18, 0.195, 0.205, 0.23, 0.33], pd: [0, 4500, 9900, 17100, 62100, 279000] }
+        };
+
+        let faixa = 0;
+        if (rbt12 > 180000) faixa = 1; if (rbt12 > 360000) faixa = 2; if (rbt12 > 720000) faixa = 3; if (rbt12 > 1800000) faixa = 4; if (rbt12 > 3600000) faixa = 5;
+        
+        const aln = tabelas[anexo].al[faixa];
+        const pd = tabelas[anexo].pd[faixa];
+        const aliquotaEfetiva = ((rbt12 * aln) - pd) / rbt12;
+        
+        const pjMensal = fat * aliquotaEfetiva;
+        const clt = calcularImpostoCLT(fat);
+
+        document.getElementById('impostoPJ').innerText = pjMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        document.getElementById('impostoCLT').innerText = clt.total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        
+        // Exibição detalhada no console ou alerta se desejar, ou você pode criar novos campos IDs
+        console.log(`PJ: ${pjMensal} | CLT: INSS ${clt.inss} + IRRF ${clt.irpf}`);
+        
+        document.getElementById('resultado').classList.remove('hidden');
+    }
+</script>
 <div class="max-w-md mx-auto mt-6 p-6 bg-white rounded-2xl shadow-xl text-gray-700">
-    <h3 class="font-bold text-lg mb-4 text-center">Racional do Cálculo</h3>
+    <h3 class="font-bold text-lg mb-4 text-center">Como calculamos:</h3>
     
-    <div class="space-y-6 text-xs">
-        <!-- CLT -->
+    <div class="space-y-4 text-xs">
         <div>
-            <p class="font-bold text-indigo-600 border-b pb-1 mb-2">Cálculo CLT (Mensal)</p>
-            <div class="flex justify-between py-1">
-                <span>Base de Imposto</span>
-                <span class="font-mono text-gray-500">Salário Bruto</span>
-            </div>
-            <div class="flex justify-between py-1">
-                <span>Custo Médio (INSS+IR)</span>
-                <span class="font-mono font-bold text-indigo-600">~15% a 27% do bruto</span>
-            </div>
-            <p class="mt-2 text-[10px] text-gray-400 italic">O cálculo CLT é progressivo: quanto maior o salário, maior a alíquota de contribuição ao INSS e a retenção de IRPF.</p>
+            <p class="font-bold text-indigo-600">Cálculo CLT (Mensal)</p>
+            <p class="text-[11px] leading-relaxed">Considera o INSS progressivo (7,5% a 14% conforme faixas de salário) e o IRPF (base após dedução do INSS, aplicando alíquotas de 7,5% a 27,5% com suas respectivas parcelas a deduzir).</p>
         </div>
         
-        <!-- Simples -->
         <div>
-            <p class="font-bold text-blue-600 border-b pb-1 mb-2">Cálculo Simples Nacional (PJ)</p>
-            <div class="flex justify-between py-1">
-                <span>Base de Imposto</span>
-                <span class="font-mono text-gray-500">Faturamento Mensal</span>
-            </div>
-            <div class="flex justify-between py-1">
-                <span>Alíquota Efetiva</span>
-                <span class="font-mono font-bold text-blue-600">6% a 33% (Variável)</span>
-            </div>
-            <p class="mt-2 text-[10px] text-gray-400 italic">A alíquota é definida pela RBT12 (receita dos últimos 12 meses). O valor final é: (Faturamento × Alíquota Efetiva).</p>
+            <p class="font-bold text-blue-600">Cálculo Simples Nacional (PJ)</p>
+            <p class="text-[11px] leading-relaxed">Utiliza a RBT12 (faturamento mensal projetado em 12 meses). O imposto é calculado através da <strong>Alíquota Efetiva</strong>: <em>((RBT12 × Alíquota Nominal) - Parcela a Deduzir) / RBT12</em>. O valor final é a aplicação desta alíquota sobre o seu faturamento mensal.</p>
         </div>
     </div>
 </div>
