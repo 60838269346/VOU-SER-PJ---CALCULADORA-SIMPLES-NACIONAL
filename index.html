@@ -51,6 +51,53 @@
                 </div>
             </div>
 
+            <!-- NOVO QUADRO ANALÍTICO: RESUMO ANUAL E MENSAL PJ -->
+            <div class="p-5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 text-amber-950 space-y-3 shadow-sm">
+                <div class="text-center pb-2 border-b border-amber-200">
+                    <p class="font-extrabold text-xs uppercase tracking-wider text-amber-900">Resumo Analítico Anual e Mensal PJ</p>
+                    <p class="text-[11px] text-amber-700">Demonstrativo Completo de Faturamento, Impostos e Líquido</p>
+                </div>
+                
+                <!-- 1. Fluxo Mensal Efetivo PJ -->
+                <div class="space-y-1.5 text-xs px-1 border-b border-amber-200 pb-3">
+                    <p class="font-bold text-[11px] text-amber-900 uppercase tracking-tight mb-1">1. Fluxo Mensal Efetivo PJ</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Valor Bruto Mensal (Faturamento):</span> 
+                        <strong id="pjAnBrutoMes" class="text-amber-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">(-) Imposto Mensal (Simples Nacional):</span> 
+                        <strong id="pjAnImpostoMes" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-amber-100 font-bold text-amber-900">
+                        <span>Líquido Recebido por Mês:</span> 
+                        <strong id="pjAnLiquidoMes" class="text-green-700">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- 2. Acúmulo e Impostos no Ano PJ -->
+                <div class="space-y-2 text-xs px-1 border-b border-amber-200 pb-3">
+                    <p class="font-bold text-[11px] text-amber-900 uppercase tracking-tight mb-1">2. Acúmulo e Impostos no Ano PJ</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Acúmulo dos 12 Meses Líquidos:</span> 
+                        <strong id="pjAnAcumulado12" class="text-amber-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-amber-100 pt-2 font-medium">
+                        <span class="text-gray-700">Total de Impostos Pagos no Ano (12 Meses):</span> 
+                        <strong id="pjAnImpostoTotalAno" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- Total Anual Geral Destacado PJ -->
+                <div class="bg-amber-900 text-white p-3 rounded-xl flex justify-between items-center shadow-inner">
+                    <div>
+                        <span class="text-[11px] text-amber-200 block font-bold">Total Geral Líquido no Ano (PJ)</span>
+                        <span class="text-[10px] text-amber-300">Soma dos Líquidos Mensais</span>
+                    </div>
+                    <strong id="pjResumoAnualAnalitico" class="text-base text-white">R$ 0,00</strong>
+                </div>
+            </div>
+
             <!-- PAINEL CLT (Com INSS e IRRF Corrigidos) -->
             <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-blue-900 space-y-2">
                 <p class="font-bold text-center text-xs uppercase tracking-wider text-blue-950">Painel Base Consolidada (Foco CLT)</p>
@@ -148,7 +195,7 @@
                 </div>
             </div>
 
-            <!-- NOVO QUADRO ANALÍTICO: RESUMO ANUAL E MENSAL CLT -->
+            <!-- QUADRO ANALÍTICO: RESUMO ANUAL E MENSAL CLT -->
             <div class="p-5 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-blue-200 text-blue-950 space-y-3 shadow-sm">
                 <div class="text-center pb-2 border-b border-blue-200">
                     <p class="font-extrabold text-xs uppercase tracking-wider text-blue-900">Resumo Analítico Anual e Mensal CLT</p>
@@ -329,6 +376,20 @@
             document.getElementById('impostoPJSoma').innerText = impostoPJSomaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('liquidoPJSoma').innerText = liquidoPJSomaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
+            // Preenchimento do Resumo Analítico Anual e Mensal PJ
+            const impostoPJMensal = fatInput * aliquotaEfetiva;
+            const liquidoPJMensal = fatInput - impostoPJMensal;
+            const acumulado12MesesPJ = liquidoPJMensal * 12;
+            const impostoTotalAnoPJ = impostoPJMensal * 12;
+
+            document.getElementById('pjAnBrutoMes').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('pjAnImpostoMes').innerText = impostoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('pjAnLiquidoMes').innerText = liquidoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('pjAnAcumulado12').innerText = acumulado12MesesPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('pjAnImpostoTotalAno').innerText = impostoTotalAnoPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('pjResumoAnualAnalitico').innerText = acumulado12MesesPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
             const liquidoCLTVal = fatInput - cltCalcMes.totalDescontos + ajudaCusto;
 
             document.getElementById('cltSalBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -361,17 +422,15 @@
 
             document.getElementById('empTotalGeral').innerText = totalGeralEmpresa.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            // Preenchimento do Resumo Analítico Anual e Mensal CLT (Com detalhamento bruto/imposto/líquido para 13º e Férias)
+            // Preenchimento do Resumo Analítico Anual e Mensal CLT
             const impostoMes = cltCalcMes.totalDescontos;
             const acumulado12Meses = liquidoCLTVal * 12;
             
-            // 13º Salário
             const bruto13 = fatInput;
             const calc13 = calcularDetalhesCLT(bruto13);
             const imposto13Anual = calc13.totalDescontos;
             const liquido13Anual = bruto13 - imposto13Anual;
 
-            // Férias (Salário + 1/3)
             const brutoFerias = fatInput * (4/3);
             const calcFerias = calcularDetalhesCLT(brutoFerias);
             const impostoFeriasAnual = calcFerias.totalDescontos;
@@ -386,13 +445,10 @@
             document.getElementById('cltAnLiquidoMes').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
             document.getElementById('cltAnAcumulado12').innerText = acumulado12Meses.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            
-            // Atribuições Detalhadas do 13º
             document.getElementById('cltAnDecimoBruto').innerText = bruto13.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltAnDecimoImposto').innerText = imposto13Anual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltAnDecimoLiq').innerText = liquido13Anual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            // Atribuições Detalhadas das Férias
             document.getElementById('cltAnFeriasBruto').innerText = brutoFerias.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltAnFeriasImposto').innerText = impostoFeriasAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltAnFeriasLiq').innerText = liquidoFeriasAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
