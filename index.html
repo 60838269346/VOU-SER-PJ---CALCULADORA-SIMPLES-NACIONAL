@@ -7,10 +7,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gray-50 p-4">
-    <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl">
+    <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
         <h2 class="text-2xl font-bold text-center mb-6">Simulador PJ Profissional</h2>
         
-        <div class="space-y-4">
+        <div class="space-y-4 max-w-md mx-auto">
             <select id="atividade" class="w-full p-3 border rounded-lg text-sm bg-gray-100 cursor-not-allowed" disabled>
                 <option value="III">Assessoria Gerencial - Anexo III</option>
             </select>
@@ -23,9 +23,9 @@
             <button onclick="calcularTudo()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Calcular Comparativo</button>
         </div>
 
-        <div id="resultado" class="mt-6 hidden space-y-4">
+        <div id="resultado" class="mt-6 hidden space-y-6">
             <!-- Detalhamento de Provisões CLT -->
-            <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-xs space-y-1 text-indigo-900">
+            <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-xs space-y-1 text-indigo-900 max-w-md mx-auto">
                 <p class="font-bold mb-1 text-center text-indigo-950">Detalhamento da Base Trabalhista</p>
                 <div class="flex justify-between"><span>Faturamento Base:</span> <strong id="valFatBase">R$ 0,00</strong></div>
                 <div class="flex justify-between"><span>Ajuda de Custo:</span> <strong id="valAjudaCusto">R$ 0,00</strong></div>
@@ -34,46 +34,91 @@
                 <div class="flex justify-between"><span>Provisão 13º Salário:</span> <strong id="val13">R$ 0,00</strong></div>
             </div>
 
-            <!-- PAINEL PJ (Base Consolidada) -->
-            <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 space-y-2">
-                <p class="font-bold text-center text-xs uppercase tracking-wider text-amber-950">Painel Base Consolidada (Foco PJ)</p>
-                <div class="flex justify-between text-xs">
-                    <span>Soma Total da Base Trabalhista:</span> 
-                    <strong id="somaBaseTrab">R$ 0,00</strong>
-                </div>
-                <div class="flex justify-between text-xs">
-                    <span>Imposto PJ sobre a Base Consolidada:</span> 
-                    <strong id="impostoPJSoma" class="text-red-600">R$ 0,00</strong>
-                </div>
-                <div class="flex justify-between text-sm border-t border-amber-200 pt-2 font-bold">
-                    <span>Líquido Estimado PJ (Total - Imposto):</span> 
-                    <strong id="liquidoPJSoma" class="text-green-700">R$ 0,00</strong>
-                </div>
-            </div>
+            <!-- LAYOUT EM DUAS COLUNAS PARA OS PAINÉIS PRINCIPAIS -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <!-- COLUNA ESQUERDA: COLABORADOR (PJ vs CLT) -->
+                <div class="space-y-4">
+                    <!-- PAINEL PJ (Base Consolidada) -->
+                    <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 space-y-2">
+                        <p class="font-bold text-center text-xs uppercase tracking-wider text-amber-950">Painel Base Consolidada (Foco PJ)</p>
+                        <div class="flex justify-between text-xs">
+                            <span>Soma Total da Base Trabalhista:</span> 
+                            <strong id="somaBaseTrab">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span>Imposto PJ sobre a Base Consolidada:</span> 
+                            <strong id="impostoPJSoma" class="text-red-600">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between text-sm border-t border-amber-200 pt-2 font-bold">
+                            <span>Líquido Estimado PJ (Total - Imposto):</span> 
+                            <strong id="liquidoPJSoma" class="text-green-700">R$ 0,00</strong>
+                        </div>
+                    </div>
 
-            <!-- PAINEL CLT (Com INSS e IRRF Corrigidos) -->
-            <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-blue-900 space-y-2">
-                <p class="font-bold text-center text-xs uppercase tracking-wider text-blue-950">Painel Base Consolidada (Foco CLT)</p>
-                <div class="flex justify-between text-xs">
-                    <span>Salário Base:</span> 
-                    <strong id="cltSalBase">R$ 0,00</strong>
+                    <!-- PAINEL CLT -->
+                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-blue-900 space-y-2">
+                        <p class="font-bold text-center text-xs uppercase tracking-wider text-blue-950">Painel Base Consolidada (Foco CLT)</p>
+                        <div class="flex justify-between text-xs">
+                            <span>Salário Base:</span> 
+                            <strong id="cltSalBase">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span>(-) Desconto INSS:</span> 
+                            <strong id="cltInss" class="text-red-600">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span>(-) Desconto IRRF:</span> 
+                            <strong id="cltIrrf" class="text-red-600">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span>(+) Ajuda de Custo (Isenta):</span> 
+                            <strong id="cltAjudaExtra" class="text-blue-700">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between text-sm border-t border-blue-200 pt-2 font-bold">
+                            <span>Líquido Estimado CLT:</span> 
+                            <strong id="cltLiquidoFinal" class="text-green-700">R$ 0,00</strong>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-between text-xs">
-                    <span>(-) Desconto INSS:</span> 
-                    <strong id="cltInss" class="text-red-600">R$ 0,00</strong>
+
+                <!-- COLUNA DIREITA: EMPRESÁRIO (ENCARGOS PATRONAIS) -->
+                <div class="space-y-4">
+                    <div class="p-4 bg-purple-50 rounded-2xl border border-purple-200 text-purple-900 space-y-2 h-full flex flex-col justify-between">
+                        <div>
+                            <p class="font-bold text-center text-xs uppercase tracking-wider text-purple-950 mb-3">Visão do Empresário (Encargos Patronais)</p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-xs">
+                                    <span>Salário Base (Sem Ajuda de Custo):</span> 
+                                    <strong id="empSalBase">R$ 0,00</strong>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span>(+) INSS Patronal (20%):</span> 
+                                    <strong id="empInssPatronal" class="text-red-600">R$ 0,00</strong>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span>(+) RAT (3%):</span> 
+                                    <strong id="empRat" class="text-red-600">R$ 0,00</strong>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span>(+) Outras Entidades / Sistema S (5,8%):</span> 
+                                    <strong id="empOutrasEntidades" class="text-red-600">R$ 0,00</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border-t border-purple-200 pt-3 mt-4 space-y-1">
+                            <div class="flex justify-between text-xs text-purple-900">
+                                <span>Soma dos Encargos (28,8%):</span> 
+                                <strong id="empTotalEncargosParcial">R$ 0,00</strong>
+                            </div>
+                            <div class="flex justify-between text-sm font-bold text-purple-950">
+                                <span>Custo Total para a Empresa:</span> 
+                                <strong id="empCustoTotal" class="text-purple-700">R$ 0,00</strong>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-between text-xs">
-                    <span>(-) Desconto IRRF:</span> 
-                    <strong id="cltIrrf" class="text-red-600">R$ 0,00</strong>
-                </div>
-                <div class="flex justify-between text-xs">
-                    <span>(+) Ajuda de Custo (Isenta):</span> 
-                    <strong id="cltAjudaExtra" class="text-blue-700">R$ 0,00</strong>
-                </div>
-                <div class="flex justify-between text-sm border-t border-blue-200 pt-2 font-bold">
-                    <span>Líquido Estimado CLT:</span> 
-                    <strong id="cltLiquidoFinal" class="text-green-700">R$ 0,00</strong>
-                </div>
+
             </div>
             
             <p id="detalheAliquota" class="text-[10px] text-gray-400 text-center"></p>
@@ -179,6 +224,20 @@
             document.getElementById('cltIrrf').innerText = cltCalcMes.irpf.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltAjudaExtra').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltLiquidoFinal').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            // Cálculos da Visão do Empresário (Apenas sobre a base de salário / fatInput)
+            const inssPatronalVal = fatInput * 0.20;
+            const ratVal = fatInput * 0.03;
+            const outrasEntidadesVal = fatInput * 0.058;
+            const totalEncargosVal = inssPatronalVal + ratVal + outrasEntidadesVal;
+            const custoTotalEmpresaVal = fatInput + totalEncargosVal;
+
+            document.getElementById('empSalBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empInssPatronal').innerText = inssPatronalVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empRat').innerText = ratVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empOutrasEntidades').innerText = outrasEntidadesVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empTotalEncargosParcial').innerText = totalEncargosVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empCustoTotal').innerText = custoTotalEmpresaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
             document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo III)`;
             document.getElementById('resultado').classList.remove('hidden');
