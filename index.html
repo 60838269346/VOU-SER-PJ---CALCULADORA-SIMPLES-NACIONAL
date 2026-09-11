@@ -65,23 +65,27 @@
                 </div>
             </div>
 
-            <!-- NOVO PAINEL CLT (Foco CLT com Ajuda de Custo Separada) -->
+            <!-- PAINEL CLT (Separado por itens) -->
             <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-blue-900 space-y-2">
                 <p class="font-bold text-center text-xs uppercase tracking-wider text-blue-950">Painel Base Consolidada (Foco CLT)</p>
                 <div class="flex justify-between text-xs">
-                    <span>Salário Base (Sem Ajuda de Custo):</span> 
+                    <span>Salário Base:</span> 
                     <strong id="cltSalBase">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between text-xs">
-                    <span>Descontos CLT (INSS + IRRF):</span> 
-                    <strong id="cltDescontos" class="text-red-600">R$ 0,00</strong>
+                    <span>(-) Descontos INSS:</span> 
+                    <strong id="cltInss" class="text-red-600">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between text-xs">
-                    <span>Ajuda de Custo (Não tributável):</span> 
+                    <span>(-) Descontos IRRF:</span> 
+                    <strong id="cltIrrf" class="text-red-600">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span>(+) Ajuda de Custo (Isenta):</span> 
                     <strong id="cltAjudaExtra" class="text-blue-700">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between text-sm border-t border-blue-200 pt-2 font-bold">
-                    <span>Líquido Estimado CLT (Base - Descontos + Ajuda):</span> 
+                    <span>Líquido Estimado CLT:</span> 
                     <strong id="cltLiquidoFinal" class="text-green-700">R$ 0,00</strong>
                 </div>
             </div>
@@ -121,16 +125,18 @@
     </div>
 
     <script>
-        function calcularImpostoCLT(bruto) {
+        function calcularDetalhesCLT(bruto) {
             let inss = 0;
             if (bruto <= 1518) inss = bruto * 0.075;
             else if (bruto <= 2793) inss = (1518 * 0.075) + ((bruto - 1518) * 0.09);
             else if (bruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((bruto - 2793) * 0.12);
             else if (bruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((bruto - 4190) * 0.14);
             else inss = 900;
+
             let base = bruto - inss;
             let irpf = (base > 4664) ? (base * 0.275 - 896) : (base > 3751 ? (base * 0.225 - 662) : (base > 2826 ? (base * 0.15 - 381) : (base > 2259 ? (base * 0.075 - 169) : 0)));
-            return inss + irpf;
+            
+            return { inss, irpf, totalDescontos: inss + irpf };
         }
 
         function calcularTudo() {
@@ -174,7 +180,7 @@
             const aliquotaEfetiva = ((rbt12 * aln) - pd) / rbt12;
 
             const impostoPJMensal = fat * aliquotaEfetiva;
-            const impostoCLTMensal = calcularImpostoCLT(fat);
+            const cltCalcMes = calcularDetalhesCLT(fat);
 
             // Cálculo para o Painel PJ (Soma Total da Base Trabalhista)
             const somaTotalBase = fatInput + ajudaCusto + fgtsVal + feriasVal + decimoVal;
@@ -197,22 +203,22 @@
             document.getElementById('impostoPJSoma').innerText = impostoPJSomaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('liquidoPJSoma').innerText = liquidoPJSomaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            // Cálculo para o Painel CLT (Base sem ajuda de custo, descontos CLT e adição da ajuda limpa)
-            const descontosCLTVal = calcularImpostoCLT(fatInput);
-            const liquidoCLTVal = fatInput - descontosCLTVal + ajudaCusto;
+            // Cálculo para o Painel CLT (Detalhado)
+            const liquidoCLTVal = fatInput - cltCalcMes.totalDescontos + ajudaCusto;
 
             document.getElementById('cltSalBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('cltDescontos').innerText = descontosCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltInss').innerText = cltCalcMes.inss.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltIrrf').innerText = cltCalcMes.irpf.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltAjudaExtra').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltLiquidoFinal').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             
             // Cálculos Anuais
             const totalPJAnual = impostoPJMensal * 12;
-            const totalCLTAnual = impostoCLTMensal * 12;
+            const totalCLTAnual = cltCalcMes.totalDescontos * 12;
             const economiaAnual = totalCLTAnual - totalPJAnual;
 
             document.getElementById('impostoPJ').innerText = impostoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('impostoCLT').innerText = impostoCLTMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('impostoCLT').innerText = cltCalcMes.totalDescontos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('totalPJAnual').innerText = totalPJAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('totalCLTAnual').innerText = totalCLTAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('economiaAnual').innerText = economiaAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -222,20 +228,3 @@
     </script>
 </body>
 </html>
-
-<!-- Bloco de Racional -->
-<div class="max-w-md mx-auto mt-6 p-6 bg-white rounded-2xl shadow-xl text-gray-700">
-    <h3 class="font-bold text-lg mb-4 text-center">Como calculamos:</h3>
-    
-    <div class="space-y-4 text-xs">
-        <div>
-            <p class="font-bold text-indigo-600">Cálculo CLT (Mensal)</p>
-            <p class="text-[11px] leading-relaxed">Considera o INSS progressivo (7,5% a 14% conforme faixas de salário) e o IRPF (base após dedução do INSS, aplicando alíquotas de 7,5% a 27,5% com suas respectivas parcelas a deduzir).</p>
-        </div>
-        
-        <div>
-            <p class="font-bold text-blue-600">Cálculo Simples Nacional (PJ)</p>
-            <p class="text-[11px] leading-relaxed">Utiliza a RBT12 (faturamento mensal projetado em 12 meses). O imposto é calculado através da <strong>Alíquota Efetiva</strong>: <em>((RBT12 × Alíquota Nominal) - Parcela a Deduzir) / RBT12</em>. O valor final é a aplicação desta alíquota sobre o seu faturamento mensal.</p>
-        </div>
-    </div>
-</div>
