@@ -7,47 +7,456 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-gray-50 p-4">
-    <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl">
         <h2 class="text-2xl font-bold text-center mb-6">Simulador PJ Profissional</h2>
         
         <div class="space-y-4">
-            <select id="atividade" class="w-full p-3 border rounded-lg text-sm bg-gray-100 cursor-pointer">
+            <select id="atividade" class="w-full p-3 border rounded-lg text-sm bg-gray-100 cursor-not-allowed" disabled>
                 <option value="III">Assessoria Gerencial - Anexo III</option>
-                <option value="V">Tecnologia/Engenharia - Anexo V (Fator R)</option>
             </select>
+            
+            <input type="number" id="faturamento" placeholder="Faturamento Mensal (R$)" class="w-full p-3 border rounded-lg">
+            
+            <!-- Campo: Ajuda de Custo -->
+            <input type="number" id="ajudaCusto" placeholder="Ajuda de Custo Mensal (R$) [Opcional]" class="w-full p-3 border rounded-lg text-sm">
 
-            <input type="number" id="faturamento" placeholder="Faturamento Mensal (R$)" class="w-full p-3 border rounded-lg text-sm" value="9500">
-            <input type="number" id="provisoes" placeholder="Provisões / Adicionais (R$)" class="w-full p-3 border rounded-lg text-sm" value="4607.20">
+            <button onclick="calcularTudo()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Calcular Comparativo</button>
+        </div>
 
-            <div class="p-4 bg-gray-100 rounded-lg">
-                <p class="text-sm font-semibold text-gray-700">Painel Base Consolidada (Foco PJ):</p>
-                <p id="baseConsolidada" class="text-xl font-bold text-blue-600">R$ 14.107,20</p>
+        <div id="resultado" class="mt-6 hidden space-y-4">
+            <!-- Detalhamento da Base Trabalhista -->
+            <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-xs space-y-1 text-indigo-900">
+                <p class="font-bold mb-1 text-center text-indigo-950">Detalhamento da Base Trabalhista</p>
+                <div class="flex justify-between"><span>Faturamento Base:</span> <strong id="valFatBase">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Ajuda de Custo:</span> <strong id="valAjudaCusto">R$ 0,00</strong></div>
+                <div class="flex justify-between border-t border-indigo-100 pt-1"><span>FGTS (8% sobre base):</span> <strong id="valFGTS">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Provisão de Férias (+1/3):</span> <strong id="valFerias">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Provisão 13º Salário:</span> <strong id="val13">R$ 0,00</strong></div>
             </div>
 
-            <button onclick="calcular()" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Calcular Comparativo</button>
-
-            <div id="resultado" class="mt-4 p-4 border rounded-lg bg-gray-50 hidden">
-                <h3 class="font-bold text-lg mb-2">Resultado:</h3>
-                <p>Imposto PJ sobre a Base Consolidada: <span id="valImposto" class="font-semibold">R$ 0,00</span></p>
+            <!-- PAINEL PJ (Base Consolidada) -->
+            <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 space-y-2">
+                <p class="font-bold text-center text-xs uppercase tracking-wider text-amber-950">Painel Base Consolidada (Foco PJ)</p>
+                <div class="flex justify-between text-xs">
+                    <span>Soma Total da Base Trabalhista:</span> 
+                    <strong id="somaBaseTrab">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span>Imposto PJ sobre a Base Consolidada:</span> 
+                    <strong id="impostoPJSoma" class="text-red-600">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between text-sm border-t border-amber-200 pt-2 font-bold">
+                    <span>Líquido Estimado PJ (Total - Imposto):</span> 
+                    <strong id="liquidoPJSoma" class="text-green-700">R$ 0,00</strong>
+                </div>
             </div>
+
+            <!-- PAINEL CLT (Com INSS e IRRF Corrigidos) -->
+            <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-blue-900 space-y-2">
+                <p class="font-bold text-center text-xs uppercase tracking-wider text-blue-950">Painel Base Consolidada (Foco CLT)</p>
+                <div class="flex justify-between text-xs">
+                    <span>Salário Base:</span> 
+                    <strong id="cltSalBase">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span>(-) Desconto INSS:</span> 
+                    <strong id="cltInss" class="text-red-600">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span>(-) Desconto IRRF:</span> 
+                    <strong id="cltIrrf" class="text-red-600">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between text-xs">
+                    <span>(+) Ajuda de Custo (Isenta):</span> 
+                    <strong id="cltAjudaExtra" class="text-blue-700">R$ 0,00</strong>
+                </div>
+                <div class="flex justify-between text-sm border-t border-blue-200 pt-2 font-bold">
+                    <span>Líquido Estimado CLT:</span> 
+                    <strong id="cltLiquidoFinal" class="text-green-700">R$ 0,00</strong>
+                </div>
+            </div>
+
+            <!-- PAINEL REESTRUTURADO: VISÃO DO EMPRESÁRIO (SALÁRIOS, PROVISÕES E ENCARGOS) -->
+            <div class="p-5 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-200 text-purple-950 space-y-3 shadow-sm">
+                <div class="text-center pb-2 border-b border-purple-200">
+                    <p class="font-extrabold text-xs uppercase tracking-wider text-purple-900">Visão do Empresário</p>
+                    <p class="text-[11px] text-purple-700">Custo Total de Salários, Provisões e Encargos</p>
+                </div>
+                
+                <!-- Salários e Provisões Mensais -->
+                <div class="space-y-1.5 text-xs px-1 border-b border-purple-200 pb-3">
+                    <p class="font-bold text-[11px] text-purple-900 uppercase tracking-tight mb-1">1. Salários e Provisões Mensais</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Salário Base:</span> 
+                        <strong id="empSalBase" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Ajuda de Custo:</span> 
+                        <strong id="empAjuda" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">FGTS (8%):</span> 
+                        <strong id="empFgts" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Provisão de Férias (+1/3):</span> 
+                        <strong id="empFerias" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Provisão 13º Salário:</span> 
+                        <strong id="emp13" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-purple-100 font-bold text-purple-900">
+                        <span>Subtotal Salários e Provisões:</span> 
+                        <strong id="empSubtotalSalarios">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- Encargos Patronais (Base sobre Salário + Férias + 13º) -->
+                <div class="space-y-1.5 text-xs px-1 border-b border-purple-200 pb-3">
+                    <p class="font-bold text-[11px] text-purple-900 uppercase tracking-tight mb-1">2. Encargos Patronais (Sobre Salário + Férias + 13º)</p>
+                    <div class="bg-purple-100/60 p-2 rounded-lg mb-2 flex justify-between items-center border border-purple-200">
+                        <span class="text-[11px] text-purple-900 font-medium">Base de Cálculo dos Encargos:</span>
+                        <strong id="empBasePatronal" class="text-purple-950 text-xs">R$ 0,00</strong>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">INSS Patronal (20%):</span> 
+                        <strong id="empInssPatronal" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">RAT (3%):</span> 
+                        <strong id="empRat" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Outras Entidades / Sistema S (5,8%):</span> 
+                        <strong id="empOutrasEntidades" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-purple-100 font-bold text-red-700">
+                        <span>Subtotal Encargos:</span> 
+                        <strong id="empSubtotalEncargos">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- Total Geral Destacado -->
+                <div class="bg-purple-900 text-white p-3 rounded-xl flex justify-between items-center shadow-inner">
+                    <div>
+                        <span class="text-[11px] text-purple-200 block font-bold">Custo Total Mensal</span>
+                        <span class="text-[10px] text-purple-300">Salários + Provisões + Encargos</span>
+                    </div>
+                    <strong id="empTotalGeral" class="text-base text-white">R$ 0,00</strong>
+                </div>
+            </div>
+
+            <!-- QUADRO ANALÍTICO: RESUMO ANUAL E MENSAL CLT -->
+            <div class="p-5 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-blue-200 text-blue-950 space-y-3 shadow-sm">
+                <div class="text-center pb-2 border-b border-blue-200">
+                    <p class="font-extrabold text-xs uppercase tracking-wider text-blue-900">Resumo Analítico Anual e Mensal CLT</p>
+                    <p class="text-[11px] text-blue-700">Demonstrativo Completo de Ganhos, Descontos e Provisões</p>
+                </div>
+                
+                <!-- 1. Detalhamento Mensal -->
+                <div class="space-y-1.5 text-xs px-1 border-b border-blue-200 pb-3">
+                    <p class="font-bold text-[11px] text-blue-900 uppercase tracking-tight mb-1">1. Fluxo Mensal Efetivo</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Salário Bruto Mensal:</span> 
+                        <strong id="cltAnBrutoMes" class="text-blue-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">(-) Imposto Total Mensal (INSS + IRRF):</span> 
+                        <strong id="cltAnImpostoMes" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">(+) Ajuda de Custo Mensal:</span> 
+                        <strong id="cltAnAjudaMes" class="text-blue-700">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-blue-100 font-bold text-blue-900">
+                        <span>Líquido Recebido por Mês:</span> 
+                        <strong id="cltAnLiquidoMes" class="text-green-700">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- 2. Benefícios, Provisões e Impostos no Ano -->
+                <div class="space-y-2 text-xs px-1 border-b border-blue-200 pb-3">
+                    <p class="font-bold text-[11px] text-blue-900 uppercase tracking-tight mb-1">2. Benefícios, Provisões e Impostos no Ano</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Acúmulo dos 12 Meses Líquidos:</span> 
+                        <strong id="cltAnAcumulado12" class="text-blue-950">R$ 0,00</strong>
+                    </div>
+
+                    <!-- Bloco 13º Salário Detalhado -->
+                    <div class="bg-blue-100/50 p-2 rounded-xl space-y-1 border border-blue-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700 font-medium">13º Salário (Bruto):</span> 
+                            <strong id="cltAnDecimoBruto" class="text-blue-950">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">(-) Impostos do 13º (INSS + IRRF):</span> 
+                            <strong id="cltAnDecimoImposto" class="text-red-600">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-blue-200/60 pt-1">
+                            <span class="text-blue-900 font-bold">13º Salário (Líquido):</span> 
+                            <strong id="cltAnDecimoLiq" class="text-green-700">R$ 0,00</strong>
+                        </div>
+                    </div>
+
+                    <!-- Bloco Férias Detalhado -->
+                    <div class="bg-blue-100/50 p-2 rounded-xl space-y-1 border border-blue-100">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700 font-medium">Férias + 1/3 (Bruto):</span> 
+                            <strong id="cltAnFeriasBruto" class="text-blue-950">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-700">(-) Impostos das Férias (INSS + IRRF):</span> 
+                            <strong id="cltAnFeriasImposto" class="text-red-600">R$ 0,00</strong>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-blue-200/60 pt-1">
+                            <span class="text-blue-900 font-bold">Férias + 1/3 (Líquido):</span> 
+                            <strong id="cltAnFeriasLiq" class="text-green-700">R$ 0,00</strong>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center border-t border-blue-100 pt-2 font-medium">
+                        <span class="text-gray-700">Total de Impostos Pagos no Ano (12m + 13º + Férias):</span> 
+                        <strong id="cltAnImpostoTotalAno" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- Total Anual Geral Destacado -->
+                <div class="bg-blue-900 text-white p-3 rounded-xl flex justify-between items-center shadow-inner">
+                    <div>
+                        <span class="text-[11px] text-blue-200 block font-bold">Total Geral no Ano (CLT)</span>
+                        <span class="text-[10px] text-blue-300">Líquidos Mensais + 13º + Férias</span>
+                    </div>
+                    <strong id="cltResumoAnualAnalitico" class="text-base text-white">R$ 0,00</strong>
+                </div>
+            </div>
+
+            <!-- NOVO QUADRO ANALÍTICO: RESUMO ANUAL E MENSAL PJ -->
+            <div class="p-5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 text-amber-950 space-y-3 shadow-sm">
+                <div class="text-center pb-2 border-b border-amber-200">
+                    <p class="font-extrabold text-xs uppercase tracking-wider text-amber-900">Resumo Analítico Anual e Mensal PJ</p>
+                    <p class="text-[11px] text-amber-700">Demonstrativo Completo de Faturamento, Impostos e Líquido</p>
+                </div>
+                
+                <!-- 1. Fluxo Mensal Efetivo PJ -->
+                <div class="space-y-1.5 text-xs px-1 border-b border-amber-200 pb-3">
+                    <p class="font-bold text-[11px] text-amber-900 uppercase tracking-tight mb-1">1. Fluxo Mensal Efetivo PJ</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Valor Bruto Mensal (Faturamento):</span> 
+                        <strong id="pjAnBrutoMes" class="text-amber-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">(-) Imposto Mensal (Simples Nacional):</span> 
+                        <strong id="pjAnImpostoMes" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-amber-100 font-bold text-amber-900">
+                        <span>Líquido Recebido por Mês:</span> 
+                        <strong id="pjAnLiquidoMes" class="text-green-700">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- 2. Acúmulo e Impostos no Ano PJ -->
+                <div class="space-y-2 text-xs px-1 border-b border-amber-200 pb-3">
+                    <p class="font-bold text-[11px] text-amber-900 uppercase tracking-tight mb-1">2. Acúmulo e Impostos no Ano PJ</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Acúmulo dos 12 Meses Líquidos:</span> 
+                        <strong id="pjAnAcumulado12" class="text-amber-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center border-t border-amber-100 pt-2 font-medium">
+                        <span class="text-gray-700">Total de Impostos Pagos no Ano (12 Meses):</span> 
+                        <strong id="pjAnImpostoTotalAno" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <!-- Total Anual Geral Destacado PJ -->
+                <div class="bg-amber-900 text-white p-3 rounded-xl flex justify-between items-center shadow-inner">
+                    <div>
+                        <span class="text-[11px] text-amber-200 block font-bold">Total Geral Líquido no Ano (PJ)</span>
+                        <span class="text-[10px] text-amber-300">Soma dos Líquidos Mensais</span>
+                    </div>
+                    <strong id="pjResumoAnualAnalitico" class="text-base text-white">R$ 0,00</strong>
+                </div>
+            </div>
+            
+            <p id="detalheAliquota" class="text-[10px] text-gray-400 text-center"></p>
         </div>
     </div>
 
     <script>
-        function calcular() {
-            let faturamento = parseFloat(document.getElementById('faturamento').value) || 0;
-            let provisoes = parseFloat(document.getElementById('provisoes').value) || 0;
-            
-            // CORREÇÃO APLICADA: A base do PJ agora puxa o total consolidado (Faturamento + Provisões)
-            let baseCalculoPJ = faturamento + provisoes;
-            
-            document.getElementById('baseConsolidada').innerText = 'R$ ' + baseCalculoPJ.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+        function calcularDetalhesCLT(bruto) {
+            let inss = 0;
+            if (bruto <= 1621.00) {
+                inss = bruto * 0.075;
+            } else if (bruto <= 2902.84) {
+                inss = (1621.00 * 0.075) + ((bruto - 1621.00) * 0.09);
+            } else if (bruto <= 4354.27) {
+                inss = (1621.00 * 0.075) + ((2902.84 - 1621.00) * 0.09) + ((bruto - 2902.84) * 0.12);
+            } else if (bruto <= 8475.55) {
+                inss = (1621.00 * 0.075) + ((2902.84 - 1621.00) * 0.09) + ((4354.27 - 2902.84) * 0.12) + ((bruto - 4354.27) * 0.14);
+            } else {
+                inss = (1621.00 * 0.075) + ((2902.84 - 1621.00) * 0.09) + ((4354.27 - 2902.84) * 0.12) + ((8475.55 - 4354.27) * 0.14);
+            }
 
-            // Exemplo de alíquota efetiva simulada (Substitua pela sua lógica real do Simples Nacional)
-            let aliquotaSimplesNacional = 0.06; 
-            let impostoPJ = baseCalculoPJ * aliquotaSimplesNacional;
+            let baseIR = bruto - inss;
+            let irpf = 0;
 
-            document.getElementById('valImposto').innerText = 'R$ ' + impostoPJ.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+            if (baseIR <= 2259.20) {
+                irpf = 0;
+            } else if (baseIR <= 2826.65) {
+                irpf = (baseIR * 0.075) - 169.44;
+            } else if (baseIR <= 3751.05) {
+                irpf = (baseIR * 0.15) - 381.44;
+            } else if (baseIR <= 4664.68) {
+                irpf = (baseIR * 0.225) - 662.77;
+            } else {
+                irpf = (baseIR * 0.275) - 896.00;
+            }
+
+            if (irpf < 0) irpf = 0;
+
+            return { inss, irpf, totalDescontos: inss + irpf };
+        }
+
+        function calcularTudo() {
+            const fatInput = parseFloat(document.getElementById('faturamento').value);
+            if (!fatInput) return;
+            
+            const ajudaCusto = parseFloat(document.getElementById('ajudaCusto').value) || 0;
+            const fat = fatInput + ajudaCusto;
+
+            const fgtsVal = fatInput * 0.08;
+            const feriasVal = (fatInput / 12) * 1.3333;
+            const decimoVal = fatInput / 12;
+
+            // Preenche Detalhamento da Base Trabalhista
+            document.getElementById('valFatBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('valAjudaCusto').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('valFGTS').innerText = fgtsVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('valFerias').innerText = feriasVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('val13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            const rbt12 = fat * 12;
+            const anexo = 'III';
+
+            const tabelas = {
+                'III': { al: [0.06, 0.112, 0.135, 0.16, 0.21, 0.33], pd: [0, 9360, 17640, 35640, 125640, 279000] }
+            };
+
+            let faixa = 0;
+            if (rbt12 > 180000) faixa = 1;
+            if (rbt12 > 360000) faixa = 2;
+            if (rbt12 > 720000) faixa = 3;
+            if (rbt12 > 1800000) faixa = 4;
+            if (rbt12 > 3600000) faixa = 5;
+
+            const aln = tabelas[anexo].al[faixa];
+            const pd = tabelas[anexo].pd[faixa];
+            const aliquotaEfetiva = ((rbt12 * aln) - pd) / rbt12;
+
+            const cltCalcMes = calcularDetalhesCLT(fatInput);
+
+            const somaTotalBase = fatInput + ajudaCusto + fgtsVal + feriasVal + decimoVal;
+            const rbt12Consolidada = somaTotalBase * 12;
+            let faixaConsolidada = 0;
+            if (rbt12Consolidada > 180000) faixaConsolidada = 1;
+            if (rbt12Consolidada > 360000) faixaConsolidada = 2;
+            if (rbt12Consolidada > 720000) faixaConsolidada = 3;
+            if (rbt12Consolidada > 1800000) faixaConsolidada = 4;
+            if (rbt12Consolidada > 3600000) faixaConsolidada = 5;
+
+            const alnConsolidada = tabelas[anexo].al[faixaConsolidada];
+            const pdConsolidada = tabelas[anexo].pd[faixaConsolidada];
+            const aliquotaEfetivaConsolidada = ((rbt12Consolidada * alnConsolidada) - pdConsolidada) / rbt12Consolidada;
+            
+            const impostoPJSomaVal = somaTotalBase * aliquotaEfetivaConsolidada;
+            const liquidoPJSomaVal = somaTotalBase - impostoPJSomaVal;
+
+            document.getElementById('somaBaseTrab').innerText = somaTotalBase.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('impostoPJSoma').innerText = impostoPJSomaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('liquidoPJSoma').innerText = liquidoPJSomaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            // Preenchimento do Resumo Analítico Anual e Mensal PJ
+            const impostoPJMensal = fatInput * aliquotaEfetiva;
+            const liquidoPJMensal = fatInput - impostoPJMensal;
+            const acumulado12MesesPJ = liquidoPJMensal * 12;
+            const impostoTotalAnoPJ = impostoPJMensal * 12;
+
+            document.getElementById('pjAnBrutoMes').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('pjAnImpostoMes').innerText = impostoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('pjAnLiquidoMes').innerText = liquidoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('pjAnAcumulado12').innerText = acumulado12MesesPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('pjAnImpostoTotalAno').innerText = impostoTotalAnoPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('pjResumoAnualAnalitico').innerText = acumulado12MesesPJ.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            const liquidoCLTVal = fatInput - cltCalcMes.totalDescontos + ajudaCusto;
+
+            document.getElementById('cltSalBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltInss').innerText = cltCalcMes.inss.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltIrrf').innerText = cltCalcMes.irpf.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAjudaExtra').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltLiquidoFinal').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            // Cálculos da Visão do Empresário
+            const subtotalSalariosProvisoes = fatInput + ajudaCusto + fgtsVal + feriasVal + decimoVal;
+            const basePatronalTotal = fatInput + feriasVal + decimoVal;
+            const inssPatronalVal = basePatronalTotal * 0.20;
+            const ratVal = basePatronalTotal * 0.03;
+            const outrasEntidadesVal = basePatronalTotal * 0.058;
+            const subtotalEncargosVal = inssPatronalVal + ratVal + outrasEntidadesVal;
+            const totalGeralEmpresa = subtotalSalariosProvisoes + subtotalEncargosVal;
+
+            document.getElementById('empSalBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empAjuda').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empFgts').innerText = fgtsVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empFerias').innerText = feriasVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('emp13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empSubtotalSalarios').innerText = subtotalSalariosProvisoes.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('empBasePatronal').innerText = basePatronalTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empInssPatronal').innerText = inssPatronalVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empRat').innerText = ratVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empOutrasEntidades').innerText = outrasEntidadesVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empSubtotalEncargos').innerText = subtotalEncargosVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('empTotalGeral').innerText = totalGeralEmpresa.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            // Preenchimento do Resumo Analítico Anual e Mensal CLT
+            const impostoMes = cltCalcMes.totalDescontos;
+            const acumulado12Meses = liquidoCLTVal * 12;
+            
+            const bruto13 = fatInput;
+            const calc13 = calcularDetalhesCLT(bruto13);
+            const imposto13Anual = calc13.totalDescontos;
+            const liquido13Anual = bruto13 - imposto13Anual;
+
+            const brutoFerias = fatInput * (4/3);
+            const calcFerias = calcularDetalhesCLT(brutoFerias);
+            const impostoFeriasAnual = calcFerias.totalDescontos;
+            const liquidoFeriasAnual = brutoFerias - impostoFeriasAnual;
+
+            const impostoTotalAno = (impostoMes * 12) + imposto13Anual + impostoFeriasAnual;
+            const totalAnualCLTAnalitico = acumulado12Meses + liquido13Anual + liquidoFeriasAnual;
+
+            document.getElementById('cltAnBrutoMes').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAnImpostoMes').innerText = impostoMes.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAnAjudaMes').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAnLiquidoMes').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('cltAnAcumulado12').innerText = acumulado12Meses.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAnDecimoBruto').innerText = bruto13.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAnDecimoImposto').innerText = imposto13Anual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAnDecimoLiq').innerText = liquido13Anual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('cltAnFeriasBruto').innerText = brutoFerias.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAnFeriasImposto').innerText = impostoFeriasAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltAnFeriasLiq').innerText = liquidoFeriasAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('cltAnImpostoTotalAno').innerText = impostoTotalAno.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltResumoAnualAnalitico').innerText = totalAnualCLTAnalitico.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo III)`;
             document.getElementById('resultado').classList.remove('hidden');
         }
     </script>
