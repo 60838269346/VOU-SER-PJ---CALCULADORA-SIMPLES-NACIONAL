@@ -24,7 +24,7 @@
         </div>
 
         <div id="resultado" class="mt-6 hidden space-y-4">
-            <!-- Detalhamento de Provisões CLT -->
+            <!-- Detalhamento da Base Trabalhista -->
             <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-xs space-y-1 text-indigo-900">
                 <p class="font-bold mb-1 text-center text-indigo-950">Detalhamento da Base Trabalhista</p>
                 <div class="flex justify-between"><span>Faturamento Base:</span> <strong id="valFatBase">R$ 0,00</strong></div>
@@ -32,6 +32,16 @@
                 <div class="flex justify-between border-t border-indigo-100 pt-1"><span>FGTS (8% sobre base):</span> <strong id="valFGTS">R$ 0,00</strong></div>
                 <div class="flex justify-between"><span>Provisão de Férias (+1/3):</span> <strong id="valFerias">R$ 0,00</strong></div>
                 <div class="flex justify-between"><span>Provisão 13º Salário:</span> <strong id="val13">R$ 0,00</strong></div>
+            </div>
+
+            <!-- NOVO QUADRO: Detalhamento gasto mensal empresa + provisões -->
+            <div class="p-3 bg-teal-50/50 rounded-xl border border-teal-100 text-xs space-y-1 text-teal-900">
+                <p class="font-bold mb-1 text-center text-teal-950">Detalhamento gasto mensal empresa + provisões</p>
+                <div class="flex justify-between"><span>Faturamento Base:</span> <strong id="empValFatBase">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Ajuda de Custo:</span> <strong id="empValAjudaCusto">R$ 0,00</strong></div>
+                <div class="flex justify-between border-t border-teal-100 pt-1"><span>FGTS (8% sobre base):</span> <strong id="empValFGTS">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Provisão de Férias (+1/3):</span> <strong id="empValFerias">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Provisão 13º Salário:</span> <strong id="empVal13">R$ 0,00</strong></div>
             </div>
 
             <!-- PAINEL PJ (Base Consolidada) -->
@@ -151,11 +161,19 @@
             const feriasVal = (fatInput / 12) * 1.3333;
             const decimoVal = fatInput / 12;
 
+            // Preenche Detalhamento da Base Trabalhista
             document.getElementById('valFatBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('valAjudaCusto').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('valFGTS').innerText = fgtsVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('valFerias').innerText = feriasVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('val13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            // Preenche o novo quadro: Detalhamento gasto mensal empresa + provisões
+            document.getElementById('empValFatBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empValAjudaCusto').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empValFGTS').innerText = fgtsVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empValFerias').innerText = feriasVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empVal13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
             const rbt12 = fat * 12;
             const anexo = 'III'; // Fixo no Anexo III
@@ -224,3 +242,4 @@
     </script>
 </body>
 </html>
+    
