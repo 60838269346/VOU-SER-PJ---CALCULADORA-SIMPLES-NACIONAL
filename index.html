@@ -65,7 +65,7 @@
                 </div>
             </div>
 
-            <!-- PAINEL CLT (Separado por itens) -->
+            <!-- PAINEL CLT (Com INSS e IRRF Corrigidos) -->
             <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-blue-900 space-y-2">
                 <p class="font-bold text-center text-xs uppercase tracking-wider text-blue-950">Painel Base Consolidada (Foco CLT)</p>
                 <div class="flex justify-between text-xs">
@@ -73,11 +73,11 @@
                     <strong id="cltSalBase">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between text-xs">
-                    <span>(-) Descontos INSS:</span> 
+                    <span>(-) Desconto INSS:</span> 
                     <strong id="cltInss" class="text-red-600">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between text-xs">
-                    <span>(-) Descontos IRRF:</span> 
+                    <span>(-) Desconto IRRF:</span> 
                     <strong id="cltIrrf" class="text-red-600">R$ 0,00</strong>
                 </div>
                 <div class="flex justify-between text-xs">
@@ -126,16 +126,40 @@
 
     <script>
         function calcularDetalhesCLT(bruto) {
+            // 1. Cálculo do INSS Progressivo Real
             let inss = 0;
-            if (bruto <= 1518) inss = bruto * 0.075;
-            else if (bruto <= 2793) inss = (1518 * 0.075) + ((bruto - 1518) * 0.09);
-            else if (bruto <= 4190) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((bruto - 2793) * 0.12);
-            else if (bruto <= 8157) inss = (1518 * 0.075) + ((2793 - 1518) * 0.09) + ((4190 - 2793) * 0.12) + ((bruto - 4190) * 0.14);
-            else inss = 900;
+            if (bruto <= 1621.00) {
+                inss = bruto * 0.075;
+            } else if (bruto <= 2902.84) {
+                inss = (1621.00 * 0.075) + ((bruto - 1621.00) * 0.09);
+            } else if (bruto <= 4354.27) {
+                inss = (1621.00 * 0.075) + ((2902.84 - 1621.00) * 0.09) + ((bruto - 2902.84) * 0.12);
+            } else if (bruto <= 8475.55) {
+                inss = (1621.00 * 0.075) + ((2902.84 - 1621.00) * 0.09) + ((4354.27 - 2902.84) * 0.12) + ((bruto - 4354.27) * 0.14);
+            } else {
+                // Teto do INSS acumulado das faixas
+                inss = (1621.00 * 0.075) + ((2902.84 - 1621.00) * 0.09) + ((4354.27 - 2902.84) * 0.12) + ((8475.55 - 4354.27) * 0.14);
+            }
 
-            let base = bruto - inss;
-            let irpf = (base > 4664) ? (base * 0.275 - 896) : (base > 3751 ? (base * 0.225 - 662) : (base > 2826 ? (base * 0.15 - 381) : (base > 2259 ? (base * 0.075 - 169) : 0)));
-            
+            // 2. Base de Cálculo do IRPF (Salário Bruto - INSS)
+            let baseIR = bruto - inss;
+            let irpf = 0;
+
+            // 3. Tabela Progressiva do IRPF Atualizada
+            if (baseIR <= 2259.20) {
+                irpf = 0;
+            } else if (baseIR <= 2826.65) {
+                irpf = (baseIR * 0.075) - 169.44;
+            } else if (baseIR <= 3751.05) {
+                irpf = (baseIR * 0.15) - 381.44;
+            } else if (baseIR <= 4664.68) {
+                irpf = (baseIR * 0.225) - 662.77;
+            } else {
+                irpf = (baseIR * 0.275) - 896.00;
+            }
+
+            if (irpf < 0) irpf = 0;
+
             return { inss, irpf, totalDescontos: inss + irpf };
         }
 
@@ -180,7 +204,7 @@
             const aliquotaEfetiva = ((rbt12 * aln) - pd) / rbt12;
 
             const impostoPJMensal = fat * aliquotaEfetiva;
-            const cltCalcMes = calcularDetalhesCLT(fat);
+            const cltCalcMes = calcularDetalhesCLT(fatInput);
 
             // Cálculo para o Painel PJ (Soma Total da Base Trabalhista)
             const somaTotalBase = fatInput + ajudaCusto + fgtsVal + feriasVal + decimoVal;
