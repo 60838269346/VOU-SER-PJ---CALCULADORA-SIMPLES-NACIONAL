@@ -125,6 +125,12 @@
                 <!-- Encargos Patronais (Base sobre Salário + Férias + 13º) -->
                 <div class="space-y-1.5 text-xs px-1 border-b border-purple-200 pb-3">
                     <p class="font-bold text-[11px] text-purple-900 uppercase tracking-tight mb-1">2. Encargos Patronais (Sobre Salário + Férias + 13º)</p>
+                    <!-- BASE DE CÁLCULO EXPLICITADA -->
+                    <div class="bg-purple-100/60 p-2 rounded-lg mb-2 flex justify-between items-center border border-purple-200">
+                        <span class="text-[11px] text-purple-900 font-medium">Base de Cálculo dos Encargos:</span>
+                        <strong id="empBasePatronal" class="text-purple-950 text-xs">R$ 0,00</strong>
+                    </div>
+                    
                     <div class="flex justify-between items-center">
                         <span class="text-gray-700">INSS Patronal (20%):</span> 
                         <strong id="empInssPatronal" class="text-red-600">R$ 0,00</strong>
@@ -283,6 +289,8 @@
             document.getElementById('emp13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empSubtotalSalarios').innerText = subtotalSalariosProvisoes.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
+            // Exibe a base de cálculo explícita no quadro 2
+            document.getElementById('empBasePatronal').innerText = basePatronalTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empInssPatronal').innerText = inssPatronalVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empRat').innerText = ratVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empOutrasEntidades').innerText = outrasEntidadesVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -296,3 +304,6 @@
     </script>
 </body>
 </html>
+   
+     
+           
