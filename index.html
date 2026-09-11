@@ -90,34 +90,28 @@
                 </div>
             </div>
 
-            <!-- Mensal -->
-            <div class="grid grid-cols-2 gap-2 text-center">
-                <div class="p-3 bg-red-50 rounded-xl">
-                    <p class="text-[10px] uppercase font-bold text-red-800">PJ (Mês)</p>
-                    <p id="impostoPJ" class="text-lg font-black text-red-600">R$ 0,00</p>
+            <!-- NOVO PAINEL DE VEREDITO / DIFERENCIAL -->
+            <div class="p-5 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl text-white shadow-xl space-y-3">
+                <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">Veredito Anual</span>
+                    <span id="badgeVantagem" class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-500 text-white">Analisando...</span>
                 </div>
-                <div class="p-3 bg-indigo-50 rounded-xl">
-                    <p class="text-[10px] uppercase font-bold text-indigo-800">CLT (Mês)</p>
-                    <p id="impostoCLT" class="text-lg font-black text-indigo-600">R$ 0,00</p>
+                
+                <div class="grid grid-cols-2 gap-4 text-center pt-1">
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase">Acumulado PJ (Ano)</p>
+                        <p id="totalPJAnual" class="text-base font-bold text-amber-400 mt-0.5">R$ 0,00</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase">Acumulado CLT (Ano)</p>
+                        <p id="totalCLTAnual" class="text-base font-bold text-blue-400 mt-0.5">R$ 0,00</p>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Acumulados Anuais -->
-            <div class="grid grid-cols-2 gap-2 text-center">
-                <div class="p-3 bg-gray-100 rounded-xl">
-                    <p class="text-[10px] uppercase font-bold text-gray-600">Total PJ (Ano)</p>
-                    <p id="totalPJAnual" class="text-sm font-black text-gray-800">R$ 0,00</p>
+                <div class="pt-2 border-t border-slate-700 text-center">
+                    <p class="text-[11px] text-slate-300 font-medium" id="textoDiferenca">Diferença de ganho anual:</p>
+                    <p id="economiaAnual" class="text-2xl font-black text-emerald-400 mt-0.5">R$ 0,00</p>
                 </div>
-                <div class="p-3 bg-gray-100 rounded-xl">
-                    <p class="text-[10px] uppercase font-bold text-gray-600">Total CLT (Ano)</p>
-                    <p id="totalCLTAnual" class="text-sm font-black text-gray-800">R$ 0,00</p>
-                </div>
-            </div>
-
-            <!-- Economia -->
-            <div class="p-4 bg-green-600 rounded-2xl text-center text-white shadow-lg">
-                <p class="text-xs font-bold uppercase opacity-80">Economia Anual Estimada</p>
-                <p id="economiaAnual" class="text-3xl font-black mt-1">R$ 0,00</p>
             </div>
             
             <p id="detalheAliquota" class="text-[10px] text-gray-400 text-center"></p>
@@ -126,7 +120,6 @@
 
     <script>
         function calcularDetalhesCLT(bruto) {
-            // 1. Cálculo do INSS Progressivo Real
             let inss = 0;
             if (bruto <= 1621.00) {
                 inss = bruto * 0.075;
@@ -137,15 +130,12 @@
             } else if (bruto <= 8475.55) {
                 inss = (1621.00 * 0.075) + ((2902.84 - 1621.00) * 0.09) + ((4354.27 - 2902.84) * 0.12) + ((bruto - 4354.27) * 0.14);
             } else {
-                // Teto do INSS acumulado das faixas
                 inss = (1621.00 * 0.075) + ((2902.84 - 1621.00) * 0.09) + ((4354.27 - 2902.84) * 0.12) + ((8475.55 - 4354.27) * 0.14);
             }
 
-            // 2. Base de Cálculo do IRPF (Salário Bruto - INSS)
             let baseIR = bruto - inss;
             let irpf = 0;
 
-            // 3. Tabela Progressiva do IRPF Atualizada
             if (baseIR <= 2259.20) {
                 irpf = 0;
             } else if (baseIR <= 2826.65) {
@@ -170,7 +160,6 @@
             const ajudaCusto = parseFloat(document.getElementById('ajudaCusto').value) || 0;
             const fat = fatInput + ajudaCusto;
 
-            // Provisões trabalhistas demonstradas para fins de base
             const fgtsVal = fatInput * 0.08;
             const feriasVal = (fatInput / 12) * 1.3333;
             const decimoVal = fatInput / 12;
@@ -206,7 +195,6 @@
             const impostoPJMensal = fat * aliquotaEfetiva;
             const cltCalcMes = calcularDetalhesCLT(fatInput);
 
-            // Cálculo para o Painel PJ (Soma Total da Base Trabalhista)
             const somaTotalBase = fatInput + ajudaCusto + fgtsVal + feriasVal + decimoVal;
             const rbt12Consolidada = somaTotalBase * 12;
             let faixaConsolidada = 0;
@@ -227,7 +215,6 @@
             document.getElementById('impostoPJSoma').innerText = impostoPJSomaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('liquidoPJSoma').innerText = liquidoPJSomaVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            // Cálculo para o Painel CLT (Detalhado)
             const liquidoCLTVal = fatInput - cltCalcMes.totalDescontos + ajudaCusto;
 
             document.getElementById('cltSalBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -236,16 +223,29 @@
             document.getElementById('cltAjudaExtra').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltLiquidoFinal').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             
-            // Cálculos Anuais
-            const totalPJAnual = impostoPJMensal * 12;
-            const totalCLTAnual = cltCalcMes.totalDescontos * 12;
-            const economiaAnual = totalCLTAnual - totalPJAnual;
+            // Totais Anuais (Líquido anual real acumulado)
+            const totalPJAnualVal = liquidoPJSomaVal * 12;
+            const liquidoMensalCLTTotal = liquidoCLTVal * 12 + (fatInput / 12) + ((fatInput / 12) * 1.3333); // Considera 13º e férias anuais
+            
+            document.getElementById('totalPJAnual').innerText = totalPJAnualVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('totalCLTAnual').innerText = liquidoMensalCLTTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            document.getElementById('impostoPJ').innerText = impostoPJMensal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('impostoCLT').innerText = cltCalcMes.totalDescontos.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('totalPJAnual').innerText = totalPJAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('totalCLTAnual').innerText = totalCLTAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('economiaAnual').innerText = economiaAnual.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            const diferencaAnual = totalPJAnualVal - liquidoMensalCLTTotal;
+            document.getElementById('economiaAnual').innerText = Math.abs(diferencaAnual).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            const badge = document.getElementById('badgeVantagem');
+            const txtDif = document.getElementById('textoDiferenca');
+            
+            if (diferencaAnual > 0) {
+                badge.innerText = "Mais Vantajoso: PJ";
+                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-500 text-white";
+                txtDif.innerText = "Vantagem financeira anual do PJ:";
+            } else {
+                badge.innerText = "Mais Vantajoso: CLT";
+                badge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-blue-500 text-white";
+                txtDif.innerText = "Vantagem financeira anual do CLT:";
+            }
+
             document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo ${anexo})`;
             document.getElementById('resultado').classList.remove('hidden');
         }
