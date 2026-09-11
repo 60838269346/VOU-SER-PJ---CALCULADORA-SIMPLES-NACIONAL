@@ -11,22 +11,8 @@
         <h2 class="text-2xl font-bold text-center mb-6">Simulador PJ Profissional</h2>
         
         <div class="space-y-4">
-            <select id="atividade" class="w-full p-3 border rounded-lg text-sm">
-                <optgroup label="Anexo I - Comércio">
-                    <option value="I">Lojas, E-commerce, Revenda de mercadorias</option>
-                </optgroup>
-                <optgroup label="Anexo II - Indústria">
-                    <option value="II">Fábricas, Confecções, Produção própria</option>
-                </optgroup>
-                <optgroup label="Anexo III - Serviços">
-                    <option value="III">Design, Marketing, Fotografia, Edição, Redação, Cursos, Instalação</option>
-                </optgroup>
-                <optgroup label="Anexo IV - Serviços Especiais">
-                    <option value="IV">Advocacia, Engenharia, Limpeza, Estruturas</option>
-                </optgroup>
-                <optgroup label="Anexo V - Serviços (Fator R)">
-                    <option value="V">TI, Consultoria, Médicos, Psicólogos, Arquitetura, Contadores</option>
-                </optgroup>
+            <select id="atividade" class="w-full p-3 border rounded-lg text-sm bg-gray-100 cursor-not-allowed" disabled>
+                <option value="III">Assessoria Gerencial - Anexo III</option>
             </select>
             
             <input type="number" id="faturamento" placeholder="Faturamento Mensal (R$)" class="w-full p-3 border rounded-lg">
@@ -147,14 +133,10 @@
             document.getElementById('val13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
             const rbt12 = fat * 12;
-            const anexo = document.getElementById('atividade').value;
+            const anexo = 'III'; // Fixo no Anexo III
 
             const tabelas = {
-                'I':   { al: [0.04, 0.073, 0.095, 0.107, 0.143, 0.19], pd: [0, 5940, 13860, 22500, 87300, 378000] },
-                'II':  { al: [0.045, 0.078, 0.1, 0.112, 0.15, 0.3], pd: [0, 5940, 13860, 22500, 93600, 720000] },
-                'III': { al: [0.06, 0.112, 0.135, 0.16, 0.21, 0.33], pd: [0, 9360, 17640, 35640, 125640, 279000] },
-                'IV':  { al: [0.045, 0.09, 0.102, 0.14, 0.22, 0.33], pd: [0, 8100, 12600, 40500, 185400, 279000] },
-                'V':   { al: [0.155, 0.18, 0.195, 0.205, 0.23, 0.33], pd: [0, 4500, 9900, 17100, 62100, 279000] }
+                'III': { al: [0.06, 0.112, 0.135, 0.16, 0.21, 0.33], pd: [0, 9360, 17640, 35640, 125640, 279000] }
             };
 
             let faixa = 0;
@@ -198,7 +180,7 @@
             document.getElementById('cltAjudaExtra').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltLiquidoFinal').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo ${anexo})`;
+            document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo III)`;
             document.getElementById('resultado').classList.remove('hidden');
         }
     </script>
