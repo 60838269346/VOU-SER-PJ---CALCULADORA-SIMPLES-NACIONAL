@@ -76,6 +76,28 @@
                 </div>
             </div>
 
+            <!-- NOVO QUADRO: RESUMO ANUAL E MENSAL CLT -->
+            <div class="p-5 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-blue-200 text-blue-950 space-y-3 shadow-sm">
+                <div class="text-center pb-2 border-b border-blue-200">
+                    <p class="font-extrabold text-xs uppercase tracking-wider text-blue-900">Resumo Anual e Mensal CLT</p>
+                    <p class="text-[11px] text-blue-700">Visão Consolidada dos Impostos e Ganhos CLT</p>
+                </div>
+                <div class="space-y-1.5 text-xs px-1">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Imposto Total Mensal (INSS + IRRF):</span> 
+                        <strong id="cltResumoImpostoMes" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Líquido Mensal CLT:</span> 
+                        <strong id="cltResumoLiquidoMes" class="text-green-700">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t border-blue-100 font-bold text-blue-900">
+                        <span>Total Acumulado no Ano (Líquido + 13º + Férias):</span> 
+                        <strong id="cltResumoAnual" class="text-blue-950 text-sm">R$ 0,00</strong>
+                    </div>
+                </div>
+            </div>
+
             <!-- PAINEL REESTRUTURADO: VISÃO DO EMPRESÁRIO (SALÁRIOS, PROVISÕES E ENCARGOS) -->
             <div class="p-5 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-200 text-purple-950 space-y-3 shadow-sm">
                 <div class="text-center pb-2 border-b border-purple-200">
@@ -115,7 +137,6 @@
                 <!-- Encargos Patronais (Base sobre Salário + Férias + 13º) -->
                 <div class="space-y-1.5 text-xs px-1 border-b border-purple-200 pb-3">
                     <p class="font-bold text-[11px] text-purple-900 uppercase tracking-tight mb-1">2. Encargos Patronais (Sobre Salário + Férias + 13º)</p>
-                    <!-- BASE DE CÁLCULO EXPLICITADA -->
                     <div class="bg-purple-100/60 p-2 rounded-lg mb-2 flex justify-between items-center border border-purple-200">
                         <span class="text-[11px] text-purple-900 font-medium">Base de Cálculo dos Encargos:</span>
                         <strong id="empBasePatronal" class="text-purple-950 text-xs">R$ 0,00</strong>
@@ -207,7 +228,7 @@
             document.getElementById('val13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
             const rbt12 = fat * 12;
-            const anexo = 'III'; // Fixo no Anexo III
+            const anexo = 'III';
 
             const tabelas = {
                 'III': { al: [0.06, 0.112, 0.135, 0.16, 0.21, 0.33], pd: [0, 9360, 17640, 35640, 125640, 279000] }
@@ -254,15 +275,25 @@
             document.getElementById('cltAjudaExtra').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltLiquidoFinal').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            // Cálculos da Visão do Empresário (Salários, Provisões e Encargos)
+            // Preenchimento do Resumo Anual e Mensal CLT
+            const totalImpostoMesCLT = cltCalcMes.totalDescontos;
+            // Cálculo anual CLT: (líquido mensal * 12) + 13º salário líquido + (férias líquidas + 1/3)
+            // Considerando o 13º e férias proporcionais baseados no salário líquido padrão descontado de impostos mensais ou proporcionais:
+            const liquido13 = fatInput - calcularDetalhesCLT(fatInput).totalDescontos; // simplificado ou base proporcional
+            const liquidoFerias = liquido13 * 1.3333;
+            const totalAnualCLT = (liquidoCLTVal * 12) + liquido13 + liquidoFerias;
+
+            document.getElementById('cltResumoImpostoMes').innerText = totalImpostoMesCLT.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltResumoLiquidoMes').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('cltResumoAnual').innerText = totalAnualCLT.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            // Cálculos da Visão do Empresário
             const subtotalSalariosProvisoes = fatInput + ajudaCusto + fgtsVal + feriasVal + decimoVal;
-            
             const basePatronalTotal = fatInput + feriasVal + decimoVal;
             const inssPatronalVal = basePatronalTotal * 0.20;
             const ratVal = basePatronalTotal * 0.03;
             const outrasEntidadesVal = basePatronalTotal * 0.058;
             const subtotalEncargosVal = inssPatronalVal + ratVal + outrasEntidadesVal;
-
             const totalGeralEmpresa = subtotalSalariosProvisoes + subtotalEncargosVal;
 
             document.getElementById('empSalBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
@@ -272,7 +303,6 @@
             document.getElementById('emp13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empSubtotalSalarios').innerText = subtotalSalariosProvisoes.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            // Exibe a base de cálculo explícita no quadro 2
             document.getElementById('empBasePatronal').innerText = basePatronalTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empInssPatronal').innerText = inssPatronalVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empRat').innerText = ratVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
