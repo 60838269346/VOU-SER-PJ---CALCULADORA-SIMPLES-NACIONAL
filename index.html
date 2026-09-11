@@ -24,7 +24,7 @@
         </div>
 
         <div id="resultado" class="mt-6 hidden space-y-4">
-            <!-- Detalhamento de Provisões CLT -->
+            <!-- Detalhamento da Base Trabalhista -->
             <div class="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 text-xs space-y-1 text-indigo-900">
                 <p class="font-bold mb-1 text-center text-indigo-950">Detalhamento da Base Trabalhista</p>
                 <div class="flex justify-between"><span>Faturamento Base:</span> <strong id="valFatBase">R$ 0,00</strong></div>
@@ -32,6 +32,16 @@
                 <div class="flex justify-between border-t border-indigo-100 pt-1"><span>FGTS (8% sobre base):</span> <strong id="valFGTS">R$ 0,00</strong></div>
                 <div class="flex justify-between"><span>Provisão de Férias (+1/3):</span> <strong id="valFerias">R$ 0,00</strong></div>
                 <div class="flex justify-between"><span>Provisão 13º Salário:</span> <strong id="val13">R$ 0,00</strong></div>
+            </div>
+
+            <!-- Detalhamento gasto mensal empresa + provisões -->
+            <div class="p-3 bg-teal-50/50 rounded-xl border border-teal-100 text-xs space-y-1 text-teal-900">
+                <p class="font-bold mb-1 text-center text-teal-950">Detalhamento gasto mensal empresa + provisões</p>
+                <div class="flex justify-between"><span>Faturamento Base:</span> <strong id="empValFatBase">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Ajuda de Custo:</span> <strong id="empValAjudaCusto">R$ 0,00</strong></div>
+                <div class="flex justify-between border-t border-teal-100 pt-1"><span>FGTS (8% sobre base):</span> <strong id="empValFGTS">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Provisão de Férias (+1/3):</span> <strong id="empValFerias">R$ 0,00</strong></div>
+                <div class="flex justify-between"><span>Provisão 13º Salário:</span> <strong id="empVal13">R$ 0,00</strong></div>
             </div>
 
             <!-- PAINEL PJ (Base Consolidada) -->
@@ -76,28 +86,70 @@
                 </div>
             </div>
 
-            <!-- PAINEL: VISÃO DO EMPRESÁRIO (ENCARGOS PATRONAIS COM FÉRIAS E 13º) -->
-            <div class="p-4 bg-purple-50 rounded-2xl border border-purple-200 text-purple-900 space-y-2">
-                <p class="font-bold text-center text-xs uppercase tracking-wider text-purple-950">Visão do Empresário (Encargos Patronais)</p>
-                <div class="flex justify-between text-xs">
-                    <span>Base de Cálculo (Salário + Férias + 13º):</span> 
-                    <strong id="empBaseCalc">R$ 0,00</strong>
+            <!-- PAINEL REESTRUTURADO: VISÃO DO EMPRESÁRIO (SALÁRIOS, PROVISÕES E ENCARGOS) -->
+            <div class="p-5 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-200 text-purple-950 space-y-3 shadow-sm">
+                <div class="text-center pb-2 border-b border-purple-200">
+                    <p class="font-extrabold text-xs uppercase tracking-wider text-purple-900">Visão do Empresário</p>
+                    <p class="text-[11px] text-purple-700">Custo Total de Salários, Provisões e Encargos</p>
                 </div>
-                <div class="flex justify-between text-xs">
-                    <span>(+) INSS Patronal (20%):</span> 
-                    <strong id="empInssPatronal" class="text-red-600">R$ 0,00</strong>
+                
+                <!-- Salários e Provisões Mensais -->
+                <div class="space-y-1.5 text-xs px-1 border-b border-purple-200 pb-3">
+                    <p class="font-bold text-[11px] text-purple-900 uppercase tracking-tight mb-1">1. Salários e Provisões Mensais</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Salário Base:</span> 
+                        <strong id="empSalBase" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Ajuda de Custo:</span> 
+                        <strong id="empAjuda" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">FGTS (8%):</span> 
+                        <strong id="empFgts" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Provisão de Férias (+1/3):</span> 
+                        <strong id="empFerias" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Provisão 13º Salário:</span> 
+                        <strong id="emp13" class="text-purple-950">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-purple-100 font-bold text-purple-900">
+                        <span>Subtotal Salários e Provisões:</span> 
+                        <strong id="empSubtotalSalarios">R$ 0,00</strong>
+                    </div>
                 </div>
-                <div class="flex justify-between text-xs">
-                    <span>(+) RAT (3%):</span> 
-                    <strong id="empRat" class="text-red-600">R$ 0,00</strong>
+
+                <!-- Encargos Patronais (Base sobre Salário + Férias + 13º) -->
+                <div class="space-y-1.5 text-xs px-1 border-b border-purple-200 pb-3">
+                    <p class="font-bold text-[11px] text-purple-900 uppercase tracking-tight mb-1">2. Encargos Patronais (Sobre Salário + Férias + 13º)</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">INSS Patronal (20%):</span> 
+                        <strong id="empInssPatronal" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">RAT (3%):</span> 
+                        <strong id="empRat" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Outras Entidades / Sistema S (5,8%):</span> 
+                        <strong id="empOutrasEntidades" class="text-red-600">R$ 0,00</strong>
+                    </div>
+                    <div class="flex justify-between items-center pt-1 border-t border-purple-100 font-bold text-red-700">
+                        <span>Subtotal Encargos:</span> 
+                        <strong id="empSubtotalEncargos">R$ 0,00</strong>
+                    </div>
                 </div>
-                <div class="flex justify-between text-xs">
-                    <span>(+) Outras Entidades / Sistema S (5,8%):</span> 
-                    <strong id="empOutrasEntidades" class="text-red-600">R$ 0,00</strong>
-                </div>
-                <div class="flex justify-between text-sm border-t border-purple-200 pt-2 font-bold">
-                    <span>Custo Patronal Total (Encargos):</span> 
-                    <strong id="empTotalEncargos" class="text-purple-900">R$ 0,00</strong>
+
+                <!-- Total Geral Destacado -->
+                <div class="bg-purple-900 text-white p-3 rounded-xl flex justify-between items-center shadow-inner">
+                    <div>
+                        <span class="text-[11px] text-purple-200 block font-bold">Custo Total Mensal</span>
+                        <span class="text-[10px] text-purple-300">Salários + Provisões + Encargos</span>
+                    </div>
+                    <strong id="empTotalGeral" class="text-base text-white">R$ 0,00</strong>
                 </div>
             </div>
             
@@ -151,11 +203,19 @@
             const feriasVal = (fatInput / 12) * 1.3333;
             const decimoVal = fatInput / 12;
 
+            // Preenche Detalhamento da Base Trabalhista
             document.getElementById('valFatBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('valAjudaCusto').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('valFGTS').innerText = fgtsVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('valFerias').innerText = feriasVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('val13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            // Preenche o quadro: Detalhamento gasto mensal empresa + provisões
+            document.getElementById('empValFatBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empValAjudaCusto').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empValFGTS').innerText = fgtsVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empValFerias').innerText = feriasVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empVal13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
             const rbt12 = fat * 12;
             const anexo = 'III'; // Fixo no Anexo III
@@ -205,18 +265,30 @@
             document.getElementById('cltAjudaExtra').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('cltLiquidoFinal').innerText = liquidoCLTVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
-            // Cálculos da Visão do Empresário (Incluindo Salário Base + Provisão de Férias + 13º Salário)
+            // Cálculos da Visão do Empresário (Salários, Provisões e Encargos)
+            const subtotalSalariosProvisoes = fatInput + ajudaCusto + fgtsVal + feriasVal + decimoVal;
+            
             const basePatronalTotal = fatInput + feriasVal + decimoVal;
             const inssPatronalVal = basePatronalTotal * 0.20;
             const ratVal = basePatronalTotal * 0.03;
             const outrasEntidadesVal = basePatronalTotal * 0.058;
-            const totalEncargosVal = inssPatronalVal + ratVal + outrasEntidadesVal;
+            const subtotalEncargosVal = inssPatronalVal + ratVal + outrasEntidadesVal;
 
-            document.getElementById('empBaseCalc').innerText = basePatronalTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            const totalGeralEmpresa = subtotalSalariosProvisoes + subtotalEncargosVal;
+
+            document.getElementById('empSalBase').innerText = fatInput.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empAjuda').innerText = ajudaCusto.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empFgts').innerText = fgtsVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empFerias').innerText = feriasVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('emp13').innerText = decimoVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empSubtotalSalarios').innerText = subtotalSalariosProvisoes.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
             document.getElementById('empInssPatronal').innerText = inssPatronalVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empRat').innerText = ratVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
             document.getElementById('empOutrasEntidades').innerText = outrasEntidadesVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
-            document.getElementById('empTotalEncargos').innerText = totalEncargosVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            document.getElementById('empSubtotalEncargos').innerText = subtotalEncargosVal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+            document.getElementById('empTotalGeral').innerText = totalGeralEmpresa.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
 
             document.getElementById('detalheAliquota').innerText = `Alíquota Efetiva: ${(aliquotaEfetiva * 100).toFixed(2)}% (Anexo III)`;
             document.getElementById('resultado').classList.remove('hidden');
